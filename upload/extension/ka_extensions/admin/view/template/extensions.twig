@@ -1,0 +1,146 @@
+{#
+    $Project: Ka Extensions $
+    $Author: karapuz team <support@ka-station.com> $
+    $Version: 4.1.1.0 $ ($Revision: 267 $)
+#}
+
+{% extends '@ka_common/pages/page.twig' %}
+
+{% block page_contents %}
+
+	{% embed '@ka_common/card.twig' with {'header': t('Ka Extensions'), icon:'fa-list'} %}
+		{% block contents %}
+
+			<fieldset>
+			  <legend>{{ heading_title }}</legend>
+			  
+				{% if not is_ka_cache_valid %}
+				    <div class="alert alert-warning">
+				    	The modification cache does not look valid. Please refresh it at <a href="index.php?route=marketplace/modification&user_token={{ user_token }}">the 'Modifications' page</a>
+				    	to make sure that the cache code is up to date.
+				    </div>
+				{% endif %}  
+
+				{% include '@ka_common/company_info.twig' %}
+		    
+<style>
+.l-extension-links {
+	padding: 0.5rem;
+}
+</style>
+		    
+			  <div class="table-responsive">
+			    <table class="table table-bordered table-hover">
+			      <thead>
+			        <tr>
+			        	{% block header_row %}
+				          <td class="text-left" style="width: 50%">{{ t('column_name') }}</td>
+				          <td class="text-left" style="width: 10%">{{ t('Version') }}</td>
+				          <td class="text-center" style="width: 15%">{{ t('Registration') }}</td>
+				        {% endblock %}
+				        {% block header_row_actions %}
+				          <td class="text-right" style="width: 15%">{{ t('Action') }}</td>
+				        {% endblock %}
+			        </tr>
+			      </thead>
+
+			      <tbody>
+			        {% if extensions %}
+				        {% set row = 0 %}
+				        {% for extension in extensions %}
+					        {% set row = row + 1 %}
+						        <tr>        
+						        	{% block body_row %}
+							          <td>{{ extension.name }}
+							          	{% if extension.link or extension.documentation_link %}
+									          <div class="l-extension-links">
+									          	{% if extension.link %}<a href="{{ extension.link }}" target="_blank">{{ t('Information') }}</a>{% endif %}
+									          	{% if extension.documentation_link %} | <a href="{{ extension.documentation_link }}" target="_blank">{{ t('Documentation') }}</a>{% endif %}
+									          </div>
+								         {% endif %}
+							          </td>
+							          <td>{{ extension.version }}</td>
+							          <td class="text-center">
+							        		{% if extension.is_wrong_license %}
+														<span style="display: block; margin: 4px; color: red;" data-toggle="tooltip" title="The website does not have a valid license. The extension is functional but you should contact our support team to resolve this issue.">{{ t('Invalid License') }}</span>
+														<span id="row_spin_{{ row }}"></span><button type="button" class="btn btn-warning" id="row_link_{{ row }}" onclick="javascript: onRegister(event, '{{ row }}', '{{ extension.extension }}');">{{ t('Register') }}</button>
+													{% endif %}
+							          	{% if extension.expiry_date %}
+														<div data-toggle="tooltip" title="{{ t('Key') }}: {{ extension.masked_key }}">{{ t('Registered') }}<br />({{ t('Exp.date') }}: {{ extension.expiry_date }})</div>
+							          	{% elseif extension.is_registered %}
+								         		<span data-toggle="tooltip" title="{{ t('Key') }}: {{ extension.masked_key }}">{{ t('Registered') }}</span>
+							          	{% elseif extension.is_free %}
+							          		{{ t('Free') }}
+							          	{% else %}
+							          		<span id="row_spin_{{ row }}"></span><button type="button" class="btn btn-warning" id="row_link_{{ row }}" onclick="javascript: onRegister(event, '{{ row }}', '{{ extension.extension }}');">{{ t('Register') }}</button>
+							          	{% endif %}
+							          </td>
+							        {% endblock %}
+							        
+							        {% block body_row_actions %}
+											  <td class="text-right">
+								         	{% if extension.is_installed %}
+								            <a href="{{ extension.action.edit.href }}" data-toggle="tooltip" title="{{ extension.action.edit.text }}" class="btn btn-primary"><i class="fas fa-pencil-alt"></i></a>
+								            <a href="{{ extension.action.uninstall.href }}" data-toggle="tooltip" title="{{ extension.action.uninstall.text }}" class="btn btn-danger"><i class="fas fa-minus-circle"></i></a>
+							            {% else %}
+								            <button type="button" class="btn btn-primary" disabled="disabled"><i class="fas fa-pencil-alt"></i></button>
+								            {% if extension.is_registered or extension.is_free %}
+									            <a href="{{ extension.action.install.href }}" data-toggle="tooltip" title="{{ extension.action.install.text }}" class="btn btn-success"><i class="fas fa-plus-circle"></i></a>
+									          {% else %}
+								            	<button type="button" class="btn btn-success" disabled="disabled" data-toggle="tooltip" title="Register the extension first"><i class="fas fa-plus-circle"></i></button>
+									        	{% endif %}
+							          	{% endif %}
+											  </td>
+											{% endblock %}
+						        </tr>
+				        {% endfor %}
+			        {% else %}
+			        <tr>
+			          <td class="text-center" colspan="5">{{ t('No Results') }}</td>
+			        </tr>
+			        {% endif %}
+			      </tbody>
+			      
+			    </table>
+			  </div>
+			</fieldset>
+		  
+			
+<script type="text/javascript"><!--
+
+function onRegister(event, row, ext_code) {
+
+	event.preventDefault();
+	event.stopPropagation();
+	
+	if (!row) {
+		row = 0;
+		ext_code = 'any';
+	}
+
+	$('#modal-input-key').remove();
+
+	$.ajax({
+		url: '{{ linka('extension/ka_extensions/extensions|inputKey') }}' + '&extension=' + ext_code,
+		dataType: 'html',
+		beforeSend: function() {
+			$('#row_spin_' + row).html('<i class="fa fa-circle-o-notch fa-spin"></i>');
+			$('#row_link_' + row).hide();
+		},
+		complete: function() {
+			$('#row_spin_' + row).html('');
+			$('#row_link_' + row).show();
+		},
+		success: function(html) {
+			$('body').append('<div id="modal-input-key" class="modal">' + html + '</div>');
+			$('#modal-input-key').modal('show');
+		}
+	});	
+
+}
+//--></script>
+			
+		{% endblock %}	
+	{% endembed  %}
+
+{% endblock %}

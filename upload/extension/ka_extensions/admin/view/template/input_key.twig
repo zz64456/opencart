@@ -1,0 +1,80 @@
+{# 
+ $Project: Ka Extensions $
+ $Author: karapuz team <support@ka-station.com> $
+ $Version: 4.1.1.0 $ ($Revision: 260 $) 
+#}
+
+<div class="modal-dialog l-license-dialog" style="width: 600px; padding-top: 200px;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4 class="modal-title">{{ t('text_extension_registration') }}</h4>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+    </div>
+
+   	<div class="modal-body">
+			<span>{{ t('text_reg_instructions') }}</span>
+				
+			<input type="hidden" name="extension" value="{{ extension }}" />
+			<table width="100%">
+				<tr>
+					<td width="200px" style="font-size: 16px">{{ t('text_license_key') }}</td>
+					<td>
+						<input type="text" name="license_key" value="" class="form-control" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX"/>
+					</td>
+				</tr>
+			</table>
+    </div>
+    <div class="modal-footer">
+			<button id="btnRegister" type="button" title="{{ t('text_register') }}" class="btn btn-primary">{{ t('text_register') }}</button>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript"><!--
+
+$('#btnRegister').on('click', function(e) {
+
+		$.ajax({
+			url: '{{ linka('extension/ka_extensions/extensions|activateKey') }}',
+			type: 'post',
+			dataType: 'json',
+			data: $('input[name^=\'license_key\'], input[name^=\'extension\']'),
+			beforeSend: function() {
+				$('msg_result').remove();
+				$('#btnRegister').prop('disabled', true);
+			},	
+			complete: function() {
+				$('#btnRegister').prop('disabled', false);
+			},
+			success: function(json) {
+				if (json['redirect']) {
+					location = json['redirect'];
+				}
+			
+				if (json['error']) {
+					html = `
+			    	<div id="msg_result" class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i>
+			    		${json['error']}
+		    			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		    		</div>`;
+		    		
+					$('.modal-dialog.l-license-dialog .modal-body').prepend(html);
+	    
+				} else if (json['success']) {
+				
+		    	html = `
+		 		  	<div id="msg_result" class="alert alert-success alert-dismissible" style="display: none"><i class="fa fa-check-circle"></i>
+		 		  		${json['success']}
+		 	  			<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close"></button>
+						</div>`;
+						
+					$('.modal-dialog.l-license-dialog .modal-body').prepend(html);
+				}
+			},
+			error: function(xhr, ajaxOptions, thrownError) {
+				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+			}
+		});
+		
+});
+//--></script>

@@ -1,0 +1,30 @@
+<kapatch version="1.0">
+	<changes>
+		<operation type="replace">
+			<search regexp="true"><![CDATA[(<fieldset>.*<legend>\{\{ text_price \}\}<\/legend>)(.*)(<\/fieldset>)]]></search>
+			<text><![CDATA[$1$2{{ include("@ka_admin/catalog/product_form/legend/price.twig", ignore_missing = true) }}$3]]></text>
+		</operation>
+		
+		<operation type="replace">
+			<search regexp="true"><![CDATA[(<fieldset>\s*<legend>\{\{ text_stock \}\}<\/legend>)(.*)(<\/fieldset>)]]></search>
+			<text><![CDATA[$1$2{{ include("@ka_admin/catalog/product_form/legend/stock.twig", ignore_missing = true) }}$3]]></text>
+		</operation>
+		
+		<operation type="replace">
+			<search regexp="true"><![CDATA[(<fieldset>\s*<legend>\{\{ text_specification \}\}<\/legend>)(.*)(<\/fieldset>)]]></search>
+			<text><![CDATA[$1$2{{ include("@ka_admin/catalog/product_form/legend/specification.twig", ignore_missing = true) }}$3]]></text>
+		</operation>
+		
+		<operation type="replace">
+			<search regexp="true"><![CDATA[
+							<div class="form-text">\{\{ help_tag \}\}<\/div>\s*<\/div>\s*<\/div>
+			]]></search>
+			<text><![CDATA[
+							<div class="form-text">{{ help_tag }}</div>
+		                  </div>
+		                </div>
+		                {{ include("@ka_admin/catalog/product_form/legend/language.twig", ignore_missing = true) }}
+			]]></text>
+		</operation>
+	</changes>
+</kapatch>

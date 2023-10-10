@@ -1,0 +1,22 @@
+{#
+    $Project$
+    $Author$
+    $Version$ ($Revision$)
+#}
+
+          <div data-ka-id="field-{{ field.code }}" class="row mb-3 {% if field.required %} required {% endif %}">
+            <label class="{% if label_width_class %}{{ label_width_class }}{% else %}col-sm-2{% endif %} col-form-label"
+            	for="input-{{ field.code }}{{ language_id }}">
+            	{% if field.title %}{{ field.title }}{% else %}{{ t('txt_title_' ~ field.code) }}{% endif %}
+            	{% if field.tooltip %}</span>{% endif %}
+            </label>
+            <div class="{% if value_width_class %}{{ value_width_class }}{% else %}col-sm-10{% endif %}">
+              {% block field_value %}{% endblock %}
+              <div id="error-{{ field.code|replace({'_': '-'}) }}" class="invalid-feedback">{% if field.error %}{{ field.error }}{% endif %}</div>
+              {% if field.tooltip %}
+              	<div class="form-text">{{ field.tooltip }}</div>
+              {% else %}
+								{% if has_t('txt_tooltip_' ~ field.code) %}<div class="form-text">{{ t('txt_tooltip_' ~ field.code) }}</div>{% endif %}
+							{% endif %}
+          	</div>
+          </div>

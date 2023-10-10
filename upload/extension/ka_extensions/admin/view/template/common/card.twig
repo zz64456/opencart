@@ -1,0 +1,10 @@
+{#
+    $Project$
+    $Author$
+    $Version$ ($Revision$)
+#}
+	<div class="card">
+		<div class="card-header"><i class="fas {{ icon }}"></i> {{ header }}</div>
+		<div id="{% if card_id %}{{ card_id }}{% endif %}" class="card-body">
+		{% block contents %}{% endblock %}</div>
+	</div>

@@ -1,0 +1,23 @@
+<kapatch version="1.0">
+	<changes>
+		<operation type="replace">
+			<search><![CDATA[return $twig->render(]]></search>
+			<text><![CDATA[
+			//ka-extensions: pass the twig to a child class to add a custom extension
+			$this->extendTwig($twig);
+			return $twig->render(]]></text>
+		</operation>
+		<operation type="replace">
+			<search regexp="true"><![CDATA[\$file\s*=\s*\\VQModKa\:\:modCheck\(\$file\);]]></search>
+			<text ><![CDATA[
+				//ka-extensions 
+				if ($this->kamod_cache_loader->exists($file) || $this->store_cache_loader->exists($file)) {
+					// kamod cache is built on top of vqmod modified templates and its cache here has to be ignored
+					// for files existing in kamod cache
+				} else {
+					$file = \VQModKa::modCheck($file);
+				}
+				///ka-extensions]]></text>
+		</operation>
+	</changes>
+</kapatch>

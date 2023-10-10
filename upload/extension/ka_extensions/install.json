@@ -1,0 +1,8 @@
+{
+  "name"      : "Ka Extensions",
+  "version"   : "5.0.0.7",
+  "author"    : "Karapuz Team",
+  "link"      : "https://www.ka-station.com/ka-extensions-for-opencart-4",
+  "store_version_min": "4.0.0.0",
+  "store_version_max": "4.0.9.9"
+}

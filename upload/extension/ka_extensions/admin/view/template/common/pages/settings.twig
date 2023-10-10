@@ -1,0 +1,46 @@
+{#
+    $Project$
+    $Author$
+    $Version$ ($Revision$)
+#}
+
+{% extends '@ka_common/pages/page.twig' %}
+
+{% block page_buttons %}
+        <button type="submit" form="form-settings" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ action_cancel }}" data-bs-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-light" data-bs-original-title="Back" aria-label="Back"><i class="fas fa-reply"></i></a>
+{% endblock %}        
+
+{% block page_contents %}
+
+	{% include '@ka_common/company_info.twig' %}
+
+  {% block settings_page_contents %}
+		{% embed '@ka_common/card.twig' with {'header': t('Extension Settings'), icon:'fa-list'} %}
+			{% block contents %}
+	    
+				<form action="{{ action_save }}" method="post" enctype="multipart/form-data" id="form-settings" data-oc-toggle="ajax">
+					<input type="hidden" name="mode" value="" id="mode" />
+          <fieldset>
+						{% set label_width_class = 'col-sm-4' %}
+						{% set value_width_class = 'col-sm-8' %}					
+						
+		      	{% block settings_contents %}
+		      		{% if fields %}
+								{% for k,f in fields %}
+									{% if f.type %}
+										{% include '@ka_common/fields/' ~ f.type ~ '.twig' with {'field': f } %}
+									{% else %}
+										{% include '@ka_common/fields/text.twig' with {'field': f } %}
+									{% endif %}
+								{% endfor %}
+		      		{% else %}
+				      	<p>The extension does not have any settings.</p>
+				      {% endif %}
+		      	{% endblock %}
+		     	</fieldset>
+	      </form>
+	    {% endblock %}
+	  {% endembed %}
+	{% endblock %}
+{% endblock %}

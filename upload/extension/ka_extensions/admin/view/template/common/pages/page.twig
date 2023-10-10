@@ -1,0 +1,53 @@
+{#
+    $Project$
+    $Author$
+    $Version$ ($Revision$)
+#}
+
+{{ header }}
+{{ column_left }}
+<div id="content" {% if page_id %}data-page_id="{{ page_id }}"{% endif %}>
+  <div class="page-header ka-sticky-bar-top">
+    <div class="container-fluid">
+      <div class="float-end">
+      	{% block page_buttons %}{% endblock %}
+      </div>
+      <h1>{{ heading_title }}</h1>
+      {% block page_breadcrumbs %}
+	      {% include '@ka_common/breadcrumbs.twig' %}
+	    {% endblock %}
+    </div>
+  </div>
+  <div class="container-fluid">
+	  {% block top_messages %}
+		  {% include '@ka_common/top_messages.twig' %}
+	  {% endblock %}
+		{% block page_contents %}The page does not have any contents.{% endblock %}
+	</div>
+</div>
+
+<style>
+	/* it is required for sticky bars  */
+	#container {
+		overflow: visible;
+	}
+</style>
+
+<script>
+$(document).ready(function() {
+	// move the alert to the center because it overlaps partially the action buttons
+	$('#alert').removeClass('end-0').addClass('start-50 translate-middle-x').css('min-width:320px');
+
+	// init tooltips on our pages always
+	ka_extensions.initPopovers();
+});
+
+ka_extensions['labels'] = {
+	'txt_warning': "{{ t('Warning')|e('js') }}",
+	'txt_info'   : "{{ t('Information')|e('js') }}",
+	'txt_success': "{{ t('Success')|e('js') }}",
+	'txt_error'  : "{{ t('Error')|e('js') }}"
+};
+
+</script>
+{{ footer }}

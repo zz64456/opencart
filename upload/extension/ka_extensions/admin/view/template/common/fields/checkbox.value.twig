@@ -1,0 +1,14 @@
+{#
+    $Project$
+    $Author$
+    $Version$ ($Revision$)
+#}
+	<div class="form-check form-switch form-switch-lg">
+     	<input {% if required %} required {% endif %} type="checkbox" 
+      	name="{% if name %}{{ name }}{% else %}{{ code }}{% endif %}" 
+      	value="1" 
+      	{% if checked %} checked="checked" {% endif %} 
+      	id="input-{{ code }}" 
+      	class="form-check-input"
+      />
+  </div>

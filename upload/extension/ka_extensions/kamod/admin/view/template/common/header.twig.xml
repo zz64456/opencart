@@ -1,0 +1,11 @@
+<kapatch version="1.0">
+	<changes>
+		<operation type="replace">
+			<search><![CDATA[<ul class="nav navbar-nav">]]></search>
+			<text><![CDATA[<ul class="nav navbar-nav">
+					{# ka-extensions #}
+					{{ include (dir(_self) ~ 'header/navbar.twig', ignore_missing = true) }}
+					{# /ka-extensions #}]]></text>
+		</operation>
+	</changes>
+</kapatch>

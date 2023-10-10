@@ -1,0 +1,13 @@
+<kapatch version="1.0">
+	<changes>
+		<operation type="replace">
+			<search><![CDATA[require_once]]></search>
+			<text><![CDATA[@include_once]]></text>
+		</operation>
+		
+		<operation type="replace">
+			<search><![CDATA[unlink($this->request->files['file']['name']);]]></search>
+			<text>unlink(DIR_STORAGE . 'marketplace/' . $this->request->files['file']['name']);</text>
+		</operation>
+	</changes>
+</kapatch>

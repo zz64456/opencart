@@ -1,0 +1,23 @@
+
+{{ parent() }}
+
+$('#extension').on('click', 'a[href*="/installer|install"]', function (e) {
+
+	var $this = $(this);
+	
+	var href = $(this).attr('href');
+	var matches = href.match(/extension_install_id=(\d*)/);
+	
+	if (matches && ka_unsafe_extensions) {
+	
+		if (ka_unsafe_extensions[matches[1]]) {
+			if (!confirm('The extension directory arelady exists. During installation the target directory will be fully overwritten. Do you want to proceed?')) {
+				e.stopImmediatePropagation();
+				e.preventDefault();
+				return;
+			}
+			
+			$this.attr('href', ka_unsafe_extensions[matches[1]]);			
+		}
+	}
+});

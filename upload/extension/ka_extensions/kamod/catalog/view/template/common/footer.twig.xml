@@ -1,0 +1,9 @@
+<kapatch version="1.0">
+	<changes>
+		<operation type="replace">
+			<search><![CDATA[</body>]]></search>
+			<text><![CDATA[{{ include("@ka_catalog/common/footer/body.twig", ignore_missing = true) }}			
+	</body>]]></text>
+		</operation>
+	</changes>
+</kapatch>

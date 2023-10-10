@@ -1,0 +1,8 @@
+<kapatch version="1.0">
+	<changes>
+		<operation type="replace">
+			<search>private array $headers</search>
+			<text>protected array $headers</text>
+		</operation>
+	</changes>
+</kapatch>

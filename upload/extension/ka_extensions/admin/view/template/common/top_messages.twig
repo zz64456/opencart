@@ -1,0 +1,15 @@
+{# 
+ $Project: Ka Extensions $
+ $Author: karapuz team <support@ka-station.com> $
+ $Version: 4.1.1.0 $ ($Revision: 276 $) 
+#}
+
+{% if (top_messages) %} 
+<script>
+$(document).ready(function() {
+  {% for top_message in top_messages %}
+  	ka_extensions.showMessage("{{ top_message['content']|e('js') }} ", "{{ top_message['type'] }}");
+  {% endfor %}
+}); 	
+</script>  
+{% endif %}

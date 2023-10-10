@@ -1,0 +1,15 @@
+{{ parent() }}
+
+<script>
+
+var ka_unsafe_extensions = {};
+
+{% if extensions %}
+	{% for extension in extensions %}
+		{% if extension.force_install %}
+			ka_unsafe_extensions['{{ extension.extension_id }}'] = "{{ extension.force_install }}";
+		{% endif %}
+	{% endfor %}
+{% endif %}
+
+</script>

@@ -1,0 +1,51 @@
+{#
+    $Project$
+    $Author$
+    $Version$ ($Revision$)
+#}
+
+<style>
+
+#header .l-kalog-errors .nav-link {
+  padding: 12px 15px 0px 15px;
+  line-height: 33px;
+  font-size: 13px;
+  position: relative;
+}
+
+#header .l-kalog-errors i {
+  font-size: 24px;
+}
+  
+#header .l-kalog-errors > .nav-link .badge {
+	position: absolute;
+  top: 7px;
+  right: 12px;
+  padding: 3px 4px 2px 4px;
+  opacity: 0.8;
+  border-radius: 6px;
+}
+
+@media (min-width: 992px) {
+
+	#header .l-kalog-errors .nav-link {
+		padding: 10px 15px 0px 15px;
+	  line-height: 50px;
+	}
+
+	#header .l-kalog-errors > .nav-link .badge {
+	    top: 14px;
+	    right: 11px;
+	}    
+}
+
+</style>    
+
+  <li class="nav-item l-kalog-errors">
+    <a href="{{ kalog_errors_link }}" class="nav-link">
+    	<i class="fas fa-ambulance"></i>
+    	{% if kalog_errors_total %}<span class="badge bg-danger">{{ kalog_errors_total }}</span>{% endif %}
+    </a>
+  </li>
+
+{{ parent() }}

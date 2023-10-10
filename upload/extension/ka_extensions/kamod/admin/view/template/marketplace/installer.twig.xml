@@ -1,0 +1,9 @@
+<kamod version="1.0">
+	<changes>
+		<operation type="replace">
+			<search><![CDATA[$('#button-upload').on(]]></search>
+			<text><![CDATA[{{ include (dir(_self) ~ 'installer/after_list_load.js.twig', ignore_missing = true) }}
+		$('#button-upload').on(]]></text>
+		</operation>
+	</changes>
+</kamod>

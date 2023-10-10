@@ -1,0 +1,71 @@
+/*
+	$Project$
+	$Author$
+
+	$Version$ ($Revision$)
+
+	z-index:
+		sticky: 300
+*/
+
+/* fixes to a default Opencart design */
+
+.popover .popover-body {
+    padding: 0.7rem 0.7rem;
+    font-size: 0.85rem;
+}
+
+@media screen and (min-width: 600px) {
+	.popover {
+		min-width: 350px;
+	}
+}
+
+/* sticky bar functionality */
+
+.ka-sticky-bar-top {
+	position: sticky;
+    z-index: 300;
+    top: 0px;
+	background: linear-gradient(to bottom, #f6f6f6, rgba(246,246,246,0.7))
+}
+
+label.col-form-label span:after {
+    font-family: "Font Awesome 5 Free";
+    color: #1E91CF;
+    content: "\f059";
+    margin-left: 4px;
+}
+
+.ka-sticky-bar-top.page-header {
+	margin-top: 10px;
+	padding-top: 10px;
+}
+
+/* a checkmark for select elements */
+
+.l-select-wrapper {
+    display: inline-block;
+    position: relative;
+}
+
+.l-select-wrapper.l-checked:after {
+    font-family: "Font Awesome 5 Free";
+    color: #15bf22;
+	content: "\f058";
+    position: absolute;
+    right: -36px;
+    top: 0px;
+    font-size: 26px;
+    animation: 1s ka-frames-fadeIn;
+}
+
+@keyframes ka-frames-fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    visibility: visible;
+    opacity: 1;
+  }
+}

@@ -1,0 +1,30 @@
+{#
+	PARAMS
+	field.code  - field code (only a-z,0-9_)
+	field.title - field title
+	field.name  - field.name (can be an array value like products[123])
+	field.value - field value
+	field.required -
+	field.error - error
+#}
+{% extends '@ka_common/fields/template.twig' %}
+
+{% block field_value %}
+                <div class="card image">
+                  <img src="{{ field.thumb }}" alt="" title="" id="thumb-{{ field.code }}" data-oc-placeholder="{{ field.default_thumb }}" class="card-img-top"/>
+                  <input type="hidden" name="{{ field.code }}" value="{{ field.value }}" id="input-{{ field.code }}"/>
+                  <div class="card-body">
+                    <button type="button" 
+                    	data-oc-toggle="image"
+                    	data-oc-target="#input-{{ field.code }}" 
+                    	data-oc-thumb="#thumb-{{ field.code }}" class="btn btn-primary btn-sm btn-block"><i class="fas fa-pencil-alt"></i> {{ t('button_edit') }}
+                    </button>
+                    <button type="button" 
+                    	data-oc-toggle="clear" 
+                    	data-oc-target="#input-{{ field.code }}" 
+                    	data-oc-thumb="#thumb-{{ field.code }}" 
+                    	class="btn btn-warning btn-sm btn-block"><i class="fas fa-trash-alt"></i> {{ t('button_clear') }}
+                    </button>
+                  </div>
+                </div>
+{% endblock %}

@@ -1,0 +1,29 @@
+ver.5.0.0.7
+- several deprecated errors occurred on php 8.2. Fixed.
+
+ver.5.0.0.6
+- added compatibility with Opencart 4.0.2.x
+
+ver.5.0.0.5
+- added overriding support for extension controller files;
+
+ver.5.0.0.4
+- added an empty template directory creation for twig FileSystemLoader
+- suppressed a warning in fileutf8 regarding the filter return value
+- disabled a deprecated warning about auto_detect_line_endings setting
+
+ver.5.0.0.3
+- fake vqmod class was replaced with vqmodka class
+
+ver.5.0.0.2
+- added compatibility with Opencart 4.0.1.0
+
+ver.5.0.0.1
+- added initialization of popover tooltips at ka_page template.
+- the license key registration popup redirected a user to the login page after successful registration. Fixed.
+- kamod cache was not rebuilt on extension installation at the 'Extension Installer' page for already installed extensions. Fixed.
+- a wrong successful message might occur on extension uninstallation at the 'Extension Installer' page. Fixed.
+- extensions with activated kamod were not fully installed because active.kamod file was not deleted. Fixed.
+
+ver.5.0.0.0
+- a new version released. It includes 'kamod' engine.

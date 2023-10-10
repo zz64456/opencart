@@ -1,0 +1,20 @@
+{#
+	PARAMS
+	field.code  - field code (only a-z,0-9_)
+	field.title - field title
+	field.name  - field.name (can be an array value like products[123])
+	field.value - field value
+	field.required -
+	field.error - error
+#}
+{% extends '@ka_common/fields/template.twig' %}
+
+{% block field_value %}
+	{% include '@ka_common/fields/checkbox.value.twig' with { 
+		checked: field.value,
+		required:field.required, 
+		name: field.name,
+		code: field.code 
+		}
+	%}
+{% endblock %}

@@ -1,0 +1,42 @@
+{#
+    $Project$
+    $Author$
+    $Version$ ($Revision$)
+    
+    This template is used for a static alert on pages.
+#}
+<style>
+	.alert-dismissible-manually .btn-close {
+	    position: absolute;
+	    top: 0;
+	    right: 0;
+	    z-index: 2;
+	    padding: 1.25rem 1rem;
+	}
+</style>
+  {% if (type == 'E') %} {# error #}
+    <div {% if id %}id="{{ id }}"{% endif %} class="alert d-flex alert-danger alert-dismissible-manually" role="alert">
+    	<div class="flex-shrink-0 pe-3">
+	    	<i class="fas fs-2 fa-exclamation-circle"></i>
+	    </div>
+  {% elseif (type == 'I') %} {# information #}
+    <div {% if id %}id="{{ id }}"{% endif %} class="alert d-flex alert-primary alert-dismissible-manually" role="alert">
+    	<div class="flex-shrink-0 pe-3">
+	    	<i class="fas fs-2 fa-info-circle"></i>
+	    </div>
+  {% elseif (type == 'W') %} {# warning #}
+    <div {% if id %}id="{{ id }}"{% endif %} class="alert d-flex alert-warning alert-dismissible-manually" role="alert">
+    	<div class="flex-shrink-0 pe-3">
+	    	<i class="fas fs-2 fa-info-circle"></i>
+	    </div>
+  {% else %} {# success #}
+	  <div {% if id %}id="{{ id }}"{% endif %} class="alert d-flex alert-success alert-dismissible-manually" role="alert">
+    	<div class="flex-shrink-0 pe-3">
+		  	<i class="fas fs-2 fa-check-circle"></i>
+		  </div>
+  {% endif %} 
+	    <div>
+ 	{% block contents %}{% endblock %}
+	    </div>
+	    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>

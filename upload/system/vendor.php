@@ -21,6 +21,9 @@ require_once(DIR_STORAGE . 'vendor/guzzlehttp/promises/src/functions_include.php
 // guzzlehttp/psr7
 $autoloader->register('GuzzleHttp\Psr7', DIR_STORAGE . 'vendor/guzzlehttp/psr7/src/', true);
 
+// karapuz/ka_extensions
+require_once(DIR_STORAGE . 'vendor/karapuz/ka_extensions/startup.php');
+
 // mtdowling/jmespath.php
 $autoloader->register('JmesPath', DIR_STORAGE . 'vendor/mtdowling/jmespath.php/src/', true);
 require_once(DIR_STORAGE . 'vendor/mtdowling/jmespath.php/src/JmesPath.php');

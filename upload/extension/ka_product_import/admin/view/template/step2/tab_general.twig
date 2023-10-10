@@ -1,0 +1,56 @@
+{#
+    $Project: CSV Product Import $
+    $Author: karapuz team <support@ka-station.com> $
+    $Version: 6.0.0.2 $ ($Revision: 572 $)
+#}
+
+						{{ t('txt_tab_general_intro') }}
+						<br /><br />
+						
+						<table class="table table-condensed table-hover">
+							<thead>
+								<tr>
+									{% set columns_number = 4 %}
+									<td class="left" width="20%">{{ t('Product Field') }}</td>
+									<td class="left">{{ t('Column in File') }}</td>
+									<td class="center" width="1%">&nbsp;</td>
+									{% if is_def_fields_enabled %}
+										<td class="left" width="10%">{{ t('Set Default') }}</td>
+										{% set columns_number = columns_number + 1 %}
+									{% endif %}
+									<td width="50%">{{ t('Notes') }}</td>
+								</tr>
+							</thead>
+							<tbody>
+							
+							{% for fk,fv in matches['fields'] %}
+								{% if (fv['section']) %}
+								<tr>
+									<td colspan="{{ columns_number }}">
+										<div class="table-section">
+											{{ fv['section'] }}
+										</div>
+									</td>
+								</tr>
+								{% endif %} 
+
+								{% if fv.values %}
+								
+									{% include dir(_self) ~ 'field_row.twig' %}
+
+								{% elseif fv.column and fv.column is iterable %}
+
+									{% for idx,val in fv.column %}
+										{% include dir(_self) ~ 'field_row.twig' %}
+									{% endfor %}
+
+								{% else %}
+								
+									{% include dir(_self) ~ 'field_row.twig' with { 'val': fv.column } %}
+									
+								{% endif %}
+								
+							{% endfor %} 
+							
+							</tbody>
+						</table>

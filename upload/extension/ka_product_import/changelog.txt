@@ -1,0 +1,16 @@
+* ver.6.0.0.4
+- added compatibility with Opencart 4.0.2.x
+
+* ver.6.0.0.3
+- tab separator could still cause the fatal error. Fixed and tested thoroughly.
+
+* ver.6.0.0.2
+- added removing variant products in the 'replace old records' import mode
+- tab separator caused a fatal error. Fixed.
+
+* ver.6.0.0.1
+- adapted to Opencart 4.0.1.0
+
+* ver.6.0.0.0
+- csv product import extension was reworked and adapted to Opencart 4
+- the extension is now based on kamod framework

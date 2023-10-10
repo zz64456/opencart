@@ -1,0 +1,37 @@
+{#
+    $Project: CSV Product Import $
+    $Author: karapuz team <support@ka-station.com> $
+    $Version: 6.0.0.2 $ ($Revision: 572 $)
+#}
+{% import '@ka_common/macros/table.twig' as macros %}
+
+{% extends '@ka_common/pages/page.twig' %}
+
+{% block page_buttons %}
+	<button type="submit" form="form-import-group" data-bs-toggle="tooltip" title="{{ t('button_save') }}" class="btn btn-primary"><i class="fas fa-save"></i></button>
+  <a href="{{ action_back }}" data-bs-toggle="tooltip" title="{{ t('button_back') }}" class="btn btn-light"><i class="fas fa-reply"></i></a>
+{% endblock %}        
+
+{% block page_contents %}
+
+	{% embed '@ka_common/card.twig' with {'header': t('Import Group'), icon:'fa-list'} %}
+		{% block contents %}
+
+			<form action="{{ action_save }}" method="post" enctype="multipart/form-data" id="form-import-group" {# data-oc-toggle="ajax" #}>
+				{% for k,f in fields %}
+					{% if f.type %}
+						{% include '@ka_common/fields/' ~ f.type ~ '.twig' with {'field': f } %}
+					{% else %}
+						{% include '@ka_common/fields/text.twig' with {'field': f } %}
+					{% endif %}
+				{% endfor %}
+			</form>
+			
+		{% endblock %}
+	{% endembed %}
+
+<script>
+
+</script>
+
+{% endblock %}

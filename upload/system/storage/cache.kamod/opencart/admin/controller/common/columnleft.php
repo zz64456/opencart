@@ -6,5 +6,5 @@
 
 namespace Opencart\Admin\Controller\Common;
 require_once(__DIR__ . '/columnleft.0.kamod.php');
-class ColumnLeft extends \extension\ka_extensions\common\ControllerColumnLeft {
+class ColumnLeft extends \extension\ka_product_import\ControllerCommonColumnLeft {
 }

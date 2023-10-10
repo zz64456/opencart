@@ -1,0 +1,90 @@
+{#
+    $Project: CSV Product Import $
+    $Author: karapuz team <support@ka-station.com> $
+    $Version: 6.0.0.2 $ ($Revision: 572 $)
+#}
+
+						{% embed dir(_self) ~ 'field.twig' with { 
+							title: t('Sub-Category Separator'),
+							tooltip: t('It is a sub-category separa...')|replace({"%settings_url%":settings_url, "%cat_separator%":params.cat_separator})
+						} %}
+							{% block field_value %}
+								<input type="text" name="cat_separator" maxlength="8" size="8" value="{{ params['cat_separator'] }}" class="form-control" />
+							{% endblock %}
+						{% endembed %}
+
+
+						{% embed dir(_self) ~ 'field.twig' with { 
+							title: t('Add product to each categor...'),
+							tooltip: t('That option allows to add t...')
+						} %}
+							{% block field_value %}
+									{% include '@ka_common/fields/checkbox.value.twig' with {
+										code: add_to_each_category, 
+										checked: params['add_to_each_category']
+									} %}
+							{% endblock %}
+						{% endembed %}
+
+						
+						{% embed dir(_self) ~ 'field.twig' with { 
+							title: t('Path to Images Directory'),
+							tooltip: t('IMPORTANT File names must ...')
+						} %}
+							{% block field_value %}
+								<div class="input-group">
+								 	<span class="input-group-text">{{ store_images_dir ~ constant('DIRECTORY_SEPARATOR') }} </span>
+									<input type="text" class="form-control" name="images_dir" value="{{ params['images_dir'] }}" />
+								</div>
+							{% endblock %}
+						{% endembed %}
+
+						{% embed dir(_self) ~ 'field.twig' with { 
+							title: t('Incoming Images Directory'),
+							tooltip: t('IMPORTANT Images provided ...')
+						} %}
+							{% block field_value %}
+									{% if (params['image_urls_allowed']) %}
+										<div class="input-group">
+										 	<span class="input-group-text">									
+												{{ store_images_dir ~ constant('DIRECTORY_SEPARATOR') }}
+											</span>
+											<input class="form-control" type="text" name="incoming_images_dir" value="{{ params['incoming_images_dir'] }}" />
+										</div>
+									{% else %} 
+										{{ t('URLs are not allowed due to...') }}
+									{% endif %} 
+							{% endblock %}
+						{% endembed %}
+
+						
+						{% if (categories) %} 
+
+							{% embed dir(_self) ~ 'field.twig' with { 
+								title: t('Default Category for New Pr...'),
+								tooltip: t('New products will be placed...')
+							} %}
+								{% block field_value %}
+									<select name="default_category_id" style="width: 300px" class="form-select" autocomplete="off">
+										<option value="">{{ t('- not specified -') }}</option>
+										{% for key, category in categories %} 
+											<option value="{{ category.category_id }}" {% if (category.category_id == params['default_category_id']) %} selected="selected" {% endif %}>{{ category.name }}</option>
+										{% endfor %} 
+									</select>
+								{% endblock %}
+							{% endembed %}						
+						
+							{% embed dir(_self) ~ 'field.twig' with { 
+								title: t('Parent Category for Categories'),
+								tooltip: t('Parent category for all cat...')
+							} %}
+								{% block field_value %}
+									<select name="parent_category_id" style="width: 300px" class="form-select" autocomplete="off">
+										<option value=""></option>
+										{% for key, category in categories %} 
+											<option value="{{ category.category_id }}" {% if (category.category_id == params['parent_category_id']) %} selected="selected" {% endif %}>{{ category.name }}</option>
+										{% endfor %} 
+									</select>
+								{% endblock %}
+							{% endembed %}
+						{% endif %}

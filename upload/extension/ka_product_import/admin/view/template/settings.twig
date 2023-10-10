@@ -1,0 +1,126 @@
+	{#
+    $Project: CSV Product Import $
+    $Author: karapuz team <support@ka-station.com> $
+    $Version: 6.0.0.2 $ ($Revision: 572 $)
+#}
+
+{% extends '@ka_common/pages/settings.twig' %}
+
+{% block settings_page_contents %}
+
+	{% embed '@ka_common/card.twig' with {'header': t('Extension Settings'), icon:'fa-list'} %}
+		{% block contents %}
+
+			<form action="{{ action_save }}" method="post" enctype="multipart/form-data" id="form-settings" data-oc-toggle="ajax">
+				<ul class="nav nav-tabs">
+					<li class="nav-item"><a class="nav-link active" href="#tab-general" data-bs-toggle="tab">{{ t('General') }}</a></li>
+			    <li class="nav-item"><a class="nav-link" href="#tab-separators" data-bs-toggle="tab">{{ t('Separators') }}</a></li>
+			    <li class="nav-item"><a class="nav-link" href="#tab-optimization" data-bs-toggle="tab">{{ t('Optimization') }}</a></li>
+				</ul>
+				
+	      <div class="tab-content">
+{# 
+
+	first tab
+
+#}
+					<div class="tab-pane active" id="tab-general">			
+		        <fieldset>
+							{% set label_width_class = 'col-sm-3' %}
+							{% set value_width_class = 'col-sm-9' %}					
+
+							{% for k,f in fields %}
+								{% if f.tab == 'general' %}
+									{% if f.type %}
+										{% include '@ka_common/fields/' ~ f.type ~ '.twig' with {'field': f } %}
+									{% else %}
+										{% include '@ka_common/fields/text.twig' with {'field': f } %}
+									{% endif %}
+								{% endif %}
+							{% endfor %}
+
+							{{ include (dir(_self) ~ 'settings/tab_general.twig', ignore_missing = true) }}
+		        </fieldset>
+					</div>
+
+{# 
+
+	second tab 
+
+#}					
+					<div class="tab-pane" id="tab-separators">			
+		        <fieldset>
+							{% set label_width_class = 'col-sm-3' %}
+							{% set value_width_class = 'col-sm-9' %}					
+							{% for k,f in fields %}
+								{% if f.tab == 'separators' %}
+									{% if f.type %}
+										{% include '@ka_common/fields/' ~ f.type ~ '.twig' with {'field': f } %}
+									{% else %}
+										{% include '@ka_common/fields/text.twig' with {'field': f } %}
+									{% endif %}
+								{% endif %}
+							{% endfor %}
+							
+							{{ include (dir(_self) ~ 'settings/tab_separators.twig', ignore_missing = true) }}							
+		        </fieldset>					
+					</div>
+					
+{# 
+
+	third tab
+
+#}					
+					<div class="tab-pane" id="tab-optimization">			
+		        <fieldset>
+							{% set label_width_class = 'col-sm-3' %}
+							{% set value_width_class = 'col-sm-9' %}					
+							{% for k,f in fields %}
+								{% if f.tab == 'optimization' %}
+									{% if f.type %}
+										{% include '@ka_common/fields/' ~ f.type ~ '.twig' with {'field': f } %}
+									{% else %}
+										{% include '@ka_common/fields/text.twig' with {'field': f } %}
+									{% endif %}
+								{% endif %}
+							{% endfor %}
+							
+							{{ include (dir(_self) ~ 'settings/tab_optimization.twig', ignore_missing = true) }}							
+		        </fieldset>					
+					</div>
+					
+				{{ include (dir(_self) ~ 'settings/tab_custom.twig', ignore_missing = true) }}
+				</div>
+			</form>
+		{% endblock %}
+	{% endembed %}
+
+
+<script>
+
+function updateSimpleOptionFields() {
+		var is_checked = $('input[name=ka_product_import_parse_simple_option_value]').is(':checked');
+		
+		if (is_checked) {
+			$('[data-ka-id=field-ka_product_import_simple_option_separator]').show(300);
+			$('[data-ka-id=field-ka_product_import_simple_option_field_order]').show(300);
+		} else {
+			$('[data-ka-id=field-ka_product_import_simple_option_separator]').hide(200);
+			$('[data-ka-id=field-ka_product_import_simple_option_field_order]').hide(200);
+		}
+}
+
+$(document).ready(function () {
+
+	$('input[name=ka_product_import_parse_simple_option_value]').on('click', function() {
+		updateSimpleOptionFields();	
+	});
+
+	updateSimpleOptionFields();
+		
+});
+
+</script>
+	
+	
+{% endblock %}

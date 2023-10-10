@@ -1,0 +1,55 @@
+{# 
+ $Project: CSV Product Import $
+ $Author: karapuz team <support@ka-station.com> $
+ $Version: 6.0.0.2 $ ($Revision: 572 $) 
+#}
+{% if matches.options %}
+
+{% if _default_options is not defined %}
+	{% set _default_options %}
+		{% include dir(_self) ~ 'options.twig' with { val: ''} %}
+	{% endset %}
+{% endif %}
+
+	{% for ok,ov in matches['options'] %}
+		<tbody>
+			<tr>
+				<td class="option-section" colspan="3">
+					<a href="javascript: void(0);" onclick="javascript: ka_step2.onClickOptionLine('body-option{{ ov.option_id }}');">{{ t('OPTION') }}: {{ ov['name'] }} <span class="l-type">({{ t('TYPE') }}: {{ ov['type'] }})</span></a>
+				</td>
+			</tr>
+		</tbody>
+		<tbody id="body-option{{ ov.option_id }}" class="collapse {% if ov.expanded or all_options_expanded %} show{% endif %}">
+			<tr>
+				<td width="25%">{{ t('Required') }}</td>
+				<td>
+					<select name="required_options[{{ ov['option_id'] }}]" class="form-select" autocomplete="off" {% if not (ov.expanded or all_options_expanded) %} disabled="disabled" {% endif %}>
+						<option value="" {% if params['matches']['required_options'][ov['option_id']] == '' %} selected="selected" {% endif %}></option>
+						<option value="Y" {% if params['matches']['required_options'][ov['option_id']] == 'Y' %} selected="selected" {% endif %}>{{ t('Yes') }}</option>
+						<option value="N" {% if params['matches']['required_options'][ov['option_id']] == 'N' %} selected="selected" {% endif %}>{{ t('No') }}</option>
+					</select>
+				</td>
+				<td width="50%">{{ t('Option group property') }}</td>
+			</tr>
+			{% for ofk,ofv in ov.fields %}
+				<tr>
+					<td width="25%"><label class="control-label">{{ ofv.name }}</label></td>
+					<td>
+						{% if ofv.disabled %}
+								<label class="control-label"><span data-bs-toggle="popover" data-bs-content="{{ ofv['reason_for_disabled']|escape }}">{{ t('Not available') }}</span></label>
+						{% else %}
+						  <select name="options[{{ ov.option_id }}][{{ ofv.field }}]" class="form-select" autocomplete="off" {% if not (ov.expanded or all_options_expanded) %} disabled="disabled" {% endif %}>
+					  	{% if ofv['column'] %}
+					  		{% include dir(_self) ~ 'options.twig' with {'val': ofv['column'] } %}
+					  	{% else %}
+					  		{{ _default_options }}
+					  	{% endif %}
+						  </select>												
+						{% endif %}
+					</td>
+					<td width="50%">{{ ofv.descr }}</td>
+				</tr>										
+			{% endfor %}
+		</tbody> 
+	{% endfor %}										
+{% endif %}

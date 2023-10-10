@@ -1,0 +1,42 @@
+{#
+    $Project: CSV Product Import $
+    $Author: karapuz team <support@ka-station.com> $
+    $Version: 6.0.0.2 $ ($Revision: 572 $)
+#}
+
+						{{ t('1 Only attributes declared...')|replace({"%attribute_page_url%": attribute_page_url}) }}
+						<br /><br />
+						<table class="table table-condensed table-striped table-hover">
+							<thead>
+								<tr>
+									<td class="left" width="25%">{{ t('Attribute Name') }}</td>
+									<td>{{ t('Column in File') }}</td>
+									<td width="50%">{{ t('Attribute Group') }}</td>
+								</tr>
+							</thead>
+							<tbody>
+							{% for ak,av in matches['attributes'] %} 
+								<tr>
+									<td width="25%"><label class="control-label">{{ av['name'] }}</label></td>
+									<td>
+										{% for lk,lv in av.values %}
+											{% set field_name = 'attributes[' ~ av.attribute_id ~ '][' ~ lk ~ ']' %}
+											<div class="input-group">
+												<span class="input-group-text">
+													<img src="{{ lv.image }}" title="{{ lv.code }}" />
+												</span>
+											  <select name="{{ field_name }}" class="form-select" autocomplete="off">
+											  	{% if av.column[lk] %}
+											  		{% include dir(_self) ~ 'options.twig' with {'val': av.column[lk] } %}
+											  	{% else %}
+											  		{{ _default_options }}
+											  	{% endif %}
+											  </select>
+											 </div>
+										{% endfor %}
+									</td>
+									<td width="50%">{{ av['attribute_group'] }}</td>
+								</tr>
+							{% endfor %} 
+							</tbody>
+						</table>

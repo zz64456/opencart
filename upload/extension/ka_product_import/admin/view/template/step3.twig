@@ -1,0 +1,313 @@
+{# 
+ $Project: CSV Product Import $
+ $Author: karapuz team <support@ka-station.com> $
+ $Version: 6.0.0.2 $ ($Revision: 572 $) 
+#}
+{% extends '@ka_common/pages/page.twig' %}
+
+{% import '@ka_common/macros/table.twig' as macros %}
+
+{% block page_buttons %}
+	<div id="buttons_in_progress">
+		{{ macros.button_js("onclick=\"javascript: ka_step3.stopImport();\"", t('Stop'), 'fa-stop') }}
+	</div>
+	<div id="buttons_stopped" style="display: none">
+		{{ macros.button_js("onclick=\"javascript: ka_step3.continueImport();\"", t('button_continue'), 'fa-play') }}
+	</div>
+	<div id="buttons_completed" style="display: none"> 
+		{{ macros.button_js("onclick=\"location='" ~ action_done ~ "'\"", t('Done'), 'fa-check-circle') }}
+	</div>
+{% endblock %}        
+
+{% block page_contents %}
+
+<style>
+	div.scroll {
+	  height: 200px;
+	  width: 100%;
+	  overflow: auto;
+	  border: 1px solid black;
+	  background-color: #eee;
+	  padding: 8px;
+	}
+	
+	#autoscroll {
+		margin-top: 14px;
+	}
+
+	.list td a.link {
+	  text-decoration: underline;
+	  color: blue;
+	}
+
+	#import_status {
+	  color: black;
+	}
+</style>
+
+	{% embed '@ka_common/card.twig' with {'header': heading_title, icon:'fa-list'} %}
+		{% block contents %}
+        <h2 id="import_status">{{ t('Import is in progress') }}</h2>
+				<table class="table table-striped table-hover">
+				  <tr>
+					<td colspan="2">{{ t('The import statistics updat...')|replace({"%update_interval%": update_interval}) }}</td>
+				  </tr>
+				  <tr>
+						<td width="25%">{{ t('Current Stage') }}</td>
+						<td id="stage_info"></td>
+				  </tr>				  
+				  <tr>
+					<td width="25%">{{ t('Stage Completion at') }}</td>
+					<td id="completion_at">0%</td>
+				  </tr>
+				  <tr>
+					<td width="25%">{{ t('Time Passed') }}</td>
+					<td id="time_passed">0</td>
+				  </tr>
+				  <tr>
+					<td width="25%">{{ t('Lines Processed') }}</td>
+					<td id="lines_processed">0</td>
+				  </tr>
+				  {% if params.sr_import_group_id %}
+				  <tr>
+					<td width="25%">{{ t('Lines Skipped by import sk...') }}</td>
+					<td id="lines_skipped">0</td>
+				  </tr>
+				  {% endif %}
+				  {% if params.pr_import_group_id %}
+				  <tr>
+					<td width="25%">{{ t('Price Rules Applied') }}</td>
+					<td id="price_rules_applied">0</td>
+				  </tr>
+				  {% endif %}
+				  <tr>
+					<td width="25%">{{ t('Products Created') }}</td>
+					<td id="products_created">0</td>
+				  </tr>
+				  <tr>
+					<td width="25%">{{ t('Products Updated') }}</td>
+					<td id="products_updated">0</td>
+				  </tr>
+				  <tr>
+					<td width="25%">{{ t('Products Deleted') }}</td>
+					<td id="products_deleted">0</td>
+				  </tr>
+				  <tr>
+					<td width="25%"><span data-toggle="popover" data-content="{{ t('It includes new products wi...') }}">{{ t('Products Disabled') }}</span></td>
+					<td id="products_disabled">0</td>
+				  </tr>
+				  <tr>
+					<td width="25%">{{ t('Categories Created') }}</td>
+					<td id="categories_created">0</td>
+				  </tr>
+				  <tr>
+					<td colspan="2">
+					  <h4>{{ t('Import messages') }}:</h4>
+					  <div class="scroll" id="scroll">
+					  </div>
+					  <input type="checkbox" id="autoscroll" checked="checked" /> {{ t('Autoscrolling') }}
+					</td>
+				  </tr>
+				</table>
+   			</div>
+    	</div>
+		{% endblock %}
+	{% endembed %}			
+
+<script type="text/javascript"><!--
+
+var ka_step3 = new function() {
+
+	var ka_page_url = '{{ page_url }}';
+	var ka_timer    = null;
+
+	/*
+	  possible values
+	    not_started -
+	    in_progress -
+	    completed   -
+	    temp_error  -
+	    fatal_error -
+	*/
+	var ka_import_state = 'not_started';
+
+	/*
+	  possible values:
+	    not_started -
+	    in_progress -
+	*/
+	var ka_ajax_state   = 'not_started';
+
+	this.runImport = () => {
+	  ka_import_state = 'in_progress';
+  	ka_timer = setInterval('ka_step3.importLoop()', 750);
+  }
+	
+  /*
+  	This function updates the interface according to the import state.
+  */
+	this.updateInterface = (status) => {
+	  $("#buttons_in_progress").hide();
+	  $("#buttons_completed").hide();
+	  $("#buttons_stopped").hide();
+
+	  if (status == 'fatal_error') {
+	    $("#import_status").html("{{ t('Server Script Error. Please...') }}");
+	    $("#buttons_completed").show();
+
+	  } else if (status == 'error') {
+	    $("#import_status").html("{{ t('Fatal Import Error. Please ...') }}");
+	    $("#buttons_completed").show();
+
+	  } else if (status == 'stopped') {
+	    $("#import_status").html("{{ t('Import stopped') }}");
+	    $("#buttons_stopped").show();
+
+	  } else if (status == 'completed') {
+	    $("#buttons_completed").show();
+	    $("#import_status").html("{{ t('Import is complete!') }}");
+	  
+	  } else if (status == 'in_progress') {
+	    $("#import_status").html('{{ t('Import is in progress') }}');
+	    $("#buttons_in_progress").show();
+	  }
+	}
+
+	this.stopImport = () => {
+	  ka_import_state = 'fatal_error';
+	  $("#import_status").html('{{ t('Import has been stopped') }}');
+	  this.updateInterface('stopped');
+	}
+
+
+	this.continueImport = () => {
+	  ka_import_state = 'in_progress';
+	  this.updateInterface('in_progress');
+	}
+
+
+	this.onAjaxError = (jqXHR, textStatus, errorThrown) => {
+	
+	  ka_import_state = 'temp_error';
+
+	  if ($.inArray(textStatus, ['abort', 'parseerror', 'error'])) {
+	    ka_import_state = 'fatal_error';
+
+	    if (jqXHR.status == '200') {
+	    	var msg = jqXHR.responseText;
+	    	
+	    	if (textStatus == 'parsererror') {
+	    		if (msg.length > 4096) {
+	    			msg = msg.substr(0, 4096);
+	    		}
+					this.addMessage('ERROR: Server response cannot be parsed:' + this.toPlainText(msg));
+	    	} else {
+		      this.addMessage("{{ t('Server error status200. ...') }}" + this.toPlainText(msg));
+		    }
+	    } else {
+	      ka_step3.addMessage("{{ t('Server error') }} (status=" + jqXHR.status + ").");
+	    }
+	    this.updateInterface('stopped');
+	  } else {
+	    this.addMessage('{{ t('Temporary connection problems.') }}');
+	  }
+
+	  ka_ajax_state = 'not_started';
+	}
+
+
+	this.onAjaxSuccess = (data, textStatus, jqXHR) => {
+	
+	  if (!data) {
+
+	    ka_import_state = 'fatal_error';
+	    this.updateInterface('fatal_error');
+
+	  } else {
+	    if (data['messages']) {
+	      $.each(data['messages'], function(key, value) {
+	        ka_step3.addMessage(value);
+	      });
+	    }
+
+	    $("#completion_at").html(data['completion_at']);
+	    $("#stage_info").html(data['stage_info']);
+	    $("#lines_processed").html(data['lines_processed']);
+	    $("#lines_skipped").html(data['lines_skipped']);
+	    $("#price_rules_applied").html(data['price_rules_applied']);
+	    $("#products_created").html(data['products_created']);
+	    $("#products_updated").html(data['products_updated']);
+	    $("#products_deleted").html(data['products_deleted']);
+	    $("#products_disabled").html(data['products_disabled']);
+	    $("#categories_created").html(data['categories_created']);
+	    $("#time_passed").html(data['time_passed']);
+
+	    if (data['status'] == 'error') {
+	      ka_import_state = 'fatal_error';
+	      this.updateInterface('error');
+
+	    } else if (data['status'] == 'completed') {
+	      ka_import_state = 'completed';
+	      this.updateInterface('completed');
+	    }
+	  }
+
+	  ka_ajax_state = 'not_started';
+	}
+
+	var ka_dots     = 0;
+	var status_text = '';
+
+	this.importLoop = () => {
+	
+	  if ($.inArray(ka_import_state, ['fatal_error', 'completed']) >= 0) {
+	    return;
+	  }
+	  
+	  if ($.inArray(ka_import_state, ['in_progress']) >= 0) {
+
+	    // show animation
+
+	    if (ka_dots == 0) {
+	      status_text = "{{ t('Import is in progress') }}";
+	    } else {
+	      status_text = status_text + '.';
+	    }
+	    if (ka_dots++ > 5)
+	      ka_dots = 0;
+	    $("#import_status").html(status_text);
+	  }
+
+	  if ($.inArray(ka_ajax_state, ['not_started']) >= 0) {
+	    ka_ajax_state = 'in_progress';
+	    $.ajax({
+	      url: ka_page_url,
+	      dataType: 'json',
+	      cache : false,
+	      success: ka_step3.onAjaxSuccess,
+	      error: ka_step3.onAjaxError
+	    });
+	  }
+	}
+	
+	this.addMessage = (msg) => {
+	  var dt       = new Date();
+	  var log_time = "[" + dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds() + "] ";
+	  $("#scroll").append(log_time + this.toPlainText(msg) + "<br />");
+
+	  if ($("#autoscroll").prop("checked")) {
+	    $("#scroll").scrollTop(999999);
+	  }
+	}
+	
+	this.toPlainText = (msg) => {
+		return msg.replaceAll('<', '&lt;').replaceAll('>','&gt;');
+	}	
+}
+  
+$(document).ready(function() {
+	ka_step3.runImport();	
+});
+
+//--></script> 
+{% endblock %}

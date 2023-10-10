@@ -1,0 +1,90 @@
+{#
+    $Project: CSV Product Import $
+    $Author: karapuz team <support@ka-station.com> $
+    $Version: 6.0.0.2 $ ($Revision: 572 $)
+
+PARAMETERS:  	
+	fv      - field
+	val     - selected value
+	idx     - for cloning	
+	is_def_fields_enabled - global flag
+	columns - global value, used in inclusions
+	
+#}
+
+	<tr id="id_{{ fv['field'] }}">
+		<td {% if (fv['required']) %} class="required" {% endif %}>
+			<label class="control-label">
+				{% if (fv['tip']) %}
+					<span data-bs-toggle="popover" data-bs-content="{{ fv['tip']|escape }}">
+				{% endif %}
+				{{ fv['name'] }}
+				{% if (fv['tip']) %} </span>{% endif %}
+			</label>
+		</td>
+
+		<td>
+		{% if fv.values %} {# output language-specific fields #}
+		
+			{% for lk,lv in fv.values %}
+				{% set field_name = 'fields[' ~ fv.field ~ '][' ~ lk ~ ']' %}
+				<div class="input-group">
+					<span class="input-group-text">
+						<img src="{{ lv.image }}" title="{{ lv.code }}" />
+					</span>
+				  <select name="{{ field_name }}" class="form-select" autocomplete="off">
+				  	{% if fv.column[lk] %}
+				  		{% include dir(_self) ~ 'options.twig' with {'val': fv.column[lk] } %}
+				  	{% else %}
+				  		{{ _default_options }}
+				  	{% endif %}
+				  </select>
+				 </div>
+			{% endfor %}
+											
+		{% else %} {# output one-row (regular) field #}
+
+				{% set field_name = 'fields[' ~ fv.field ~ ']' %}
+				{% if fv['can_be_cloned'] %}
+					{% set field_name = field_name ~ "[]" %}
+				{% endif %}
+											
+				{% if fv.disabled %}
+						<label class="control-label"><span data-bs-toggle="popover" data-bs-content="{{ fv['reason_for_disabled']|escape }}">{{ t('Not available') }}</span></label>
+				{% else %}
+					  <select name="{{ field_name }}" class="form-select" autocomplete="off">
+					  	{% if val %}
+					  		{% include dir(_self) ~ 'options.twig' %}
+					  	{% else %}
+					  		{{ _default_options }}
+					  	{% endif %}
+					  </select>
+				{% endif %}
+		{% endif %}
+		</td>
+									
+		<td>
+			{% if (fv['can_be_cloned']) %}
+				<button {% if (idx > 0) %} style="display:none" {% endif %} type="button" onclick="ka_step2.cloneField('{{ fv['field'] }}');" data-bs-toggle="tooltip" title="{{ t('Add') }}" class="btn-xs btn-primary"><i class="fa fa-plus-circle"></i></button>
+				<button {% if (idx == 0) %} style="display:none" {% endif %} type="button" onclick="$(this).parent().parent().remove();" data-bs-toggle="tooltip" title="{{ t('Remove') }}" class="btn-xs btn-danger"><i class="fa fa-minus-circle"></i></button>
+			{% endif %}
+		</td>
+		{% if is_def_fields_enabled %}
+		<td>
+			{% if fv.has_default %}
+				<select name="set_default_for[{{fv.field}}]" class="form-select" autocomplete="off">
+					<option value=""></option>
+					<option value="A">{{ t('For All') }}</option>
+					<option value="E">{{ t('For Empty Only') }}</option>
+				</select>
+			{% endif %}
+		</td>
+		{% endif %}
+		<td>
+				{% if has_t('txt_descr_' ~ fv['field']) %}
+					<span class="help">{{ t('txt_descr_' ~ fv['field']) }}</span>
+				{% elseif fv['descr'] %}
+					<span class="help">{{ fv['descr'] }}</span>
+				{% endif %}
+		</td>
+	</tr>

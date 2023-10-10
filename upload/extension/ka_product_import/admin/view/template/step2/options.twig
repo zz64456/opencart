@@ -1,0 +1,12 @@
+{# 
+    $Project: CSV Product Import $
+    $Author: karapuz team <support@ka-station.com> $
+    $Version: 6.0.0.2 $ ($Revision: 572 $)
+
+PARAMETERS:
+  
+#}
+
+{% for key,column in columns %}
+	<option value="{{ key }}" {% if key == val %} selected="selected" {% endif %}>{{ column }} {% if column in replacement_columns %} (#RPL) {% endif %}</option>
+{% endfor %}

@@ -1,0 +1,11 @@
+{
+  "name"      : "CSV Product Import",
+  "version"   : "6.0.0.4",
+  "author"    : "Karapuz Team",
+  "link"      : "https://www.ka-station.com/csv-product-import-for-opencart-4",
+  "ka_type"   : "ka_extensions",  
+  "documentation_link" : "https://www.ka-station.com/tickets/kb/faq.php?cid=1",
+  "store_version_min": "4.0.0.0",
+  "store_version_max": "4.0.9.9",
+  "ka_extensions_version": "5.0.0.6"
+}

@@ -1,0 +1,82 @@
+{#
+    $Project: CSV Product Import $
+    $Author: karapuz team <support@ka-station.com> $
+    $Version: 6.0.0.2 $ ($Revision: 572 $)
+#}
+
+						{{ t('There are two option format...') }}
+						<br /><br />
+						
+						<ul class="nav nav-tabs">
+							<li><a href="#otab-simple_format" class="nav-link active" data-bs-toggle="tab">{{ t('Simple Format') }}</a></li>
+							<li><a href="#otab-extended_format" class="nav-link" data-bs-toggle="tab">{{ t('Extended Format') }}</a></li>
+						</ul>
+
+						<div class="tab-content">
+							<div class="tab-pane active" id="otab-simple_format">
+								{{ t('Select the columns containg...')|replace({"%option_page_url%": option_page_url}) }}
+								<br /><br />
+
+								<table id="simple-options-list" class="table table-condensed table-hover">
+									<thead>
+										<tr>
+											<td class="left" width="25%">{{ t('Field') }}</td>
+											<td>{{ t('Column in File') }}</td>
+											<td width="50%">{{ t('Type / Description') }}</td>
+										</tr>
+									</thead>
+									{% if total_options_not_loaded %}
+										<tbody>
+											<tr>
+												<td colspan="3" class="text-center">
+													{{ t('The store contains more th...')|replace({"%max_visible_options%": max_visible_options}) }}
+													<button class="btn btn-primary" onclick="javascript: ka_step2.loadSimpleOptions();">{{ t('Load totaloptionsnotl...')|replace({"%total_options_not_loaded%": total_options_not_loaded}) }}</button>
+												</td>
+											</tr>
+										</tbody>
+									{% else %}
+										{% include dir(_self) ~ 'simple_options.twig' %}
+									{% endif %}
+								</table>
+							</div>
+							
+							<div class="tab-pane" id="otab-extended_format">
+
+								{{ t('If you need to import all o...') }}
+
+								<br /><br />
+
+								<table class="table table-condensed table-hover">
+									<thead>
+										<tr>
+											<td class="left" width="25%">Field</td>
+											<td>Column in File</td>
+											<td width="50%">Notes</td>
+										</tr>
+									</thead>
+
+									<tbody>
+
+									{% for dk,dv in matches['ext_options'] %} 
+										<tr>
+											<td width="25%"><label class="control-label">{{ dv['name'] }}</label></td>
+											<td>
+												{% if dv.disabled %}
+														<label class="control-label"><span data-bs-toggle="popover" data-content="{{ dv['reason_for_disabled']|escape }}">{{ t('Not available') }}</span></label>
+												{% else %}
+												  <select name="ext_options[{{ dv.field }}]" class="form-select" autocomplete="off">
+												  	{% if dv['column'] %}
+												  		{% include dir(_self) ~ 'options.twig' with {'val': dv['column'] } %}
+												  	{% else %}
+												  		{{ _default_options }}
+												  	{% endif %}
+												  </select>												
+												{% endif %}
+											</td>
+											<td width="50%"><span class="help">{{ dv['descr'] }}</span></td>
+										</tr>
+									{% endfor %} 
+
+								</table>
+							</div>        
+						</div>

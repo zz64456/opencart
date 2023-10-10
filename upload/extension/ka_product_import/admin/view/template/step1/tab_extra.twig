@@ -1,0 +1,120 @@
+{#
+    $Project: CSV Product Import $
+    $Author: karapuz team <support@ka-station.com> $
+    $Version: 6.0.0.2 $ ($Revision: 572 $)
+#}
+
+						{% embed dir(_self) ~ 'field.twig' with { 
+							title: t('General Price Multiplier'),
+							tooltip: t('Price multiplier leave emp...')
+						} %}
+							{% block field_value %}
+								<input type="text" name="price_multiplier" maxlength="8" size="8" value="{{ params['price_multiplier'] }}" class="form-control" />
+							{% endblock %}
+						{% endembed %}
+
+						{% embed dir(_self) ~ 'field.twig' with { 
+							title: t('Import Price Rules'),
+							tooltip: t('Import price rules allow to...')
+						} %}
+							{% block field_value %}
+								<select name="pr_import_group_id" class="form-select">
+									<option value="">{{ t('- not specified -') }}</option>
+									{% for ig in import_groups %}
+										<option value="{{ ig.import_group_id }}" {% if ig.import_group_id == params.pr_import_group_id %} selected="selected" {% endif %}>{{ ig.name }}</option>
+									{% endfor %}
+								</select>
+							{% endblock %}
+						{% endembed %}
+												
+						{% embed dir(_self) ~ 'field.twig' with { title: t('Disable Store Products not ...') } %}
+							{% block field_value %}
+									{% include '@ka_common/fields/checkbox.value.twig' with {code: 'disable_not_imported_products', checked: params['disable_not_imported_products'] } %}
+							{% endblock %}
+						{% endembed %}
+						
+						
+						{% embed dir(_self) ~ 'field.twig' with { 
+							title: t('Do not Create New Products')
+						} %}
+							{% block field_value %}
+									{% include '@ka_common/fields/checkbox.value.twig' with {
+										code: 'skip_new_products', 
+										checked: params['skip_new_products'],
+									} %}
+							{% endblock %}
+						{% endembed %}
+
+						{% embed dir(_self) ~ 'field.twig' with { 
+							title: t('Import Skip Rules'),
+							tooltip: t('Import skip rules allow to ...')
+						} %}
+							{% block field_value %}
+								<select name="sr_import_group_id" class="form-select">
+									<option value="">{{ t('- not specified -') }}</option>
+									{% for ig in import_groups %}
+										<option value="{{ ig.import_group_id }}" {% if ig.import_group_id == params.sr_import_group_id %} selected="selected" {% endif %}>{{ ig.name }}</option>
+									{% endfor %}
+								</select>
+							{% endblock %}
+						{% endembed %}
+						
+						{% embed dir(_self) ~ 'field.twig' with { 
+							title: t('Import Replacements'),
+							tooltip: t('Import replacements allow t...')
+						} %}
+							{% block field_value %}
+								<select name="ir_import_group_id" class="form-select">
+									<option value="">{{ t('- not specified -') }}</option>
+									{% for ig in import_groups %}
+										<option value="{{ ig.import_group_id }}" {% if ig.import_group_id == params.ir_import_group_id %} selected="selected" {% endif %}>{{ ig.name }}</option>
+									{% endfor %}
+								</select>
+							{% endblock %}
+						{% endembed %}
+						
+						
+						{% embed dir(_self) ~ 'field.twig' with { 
+							title: t('Treat Description as Plain ...'),
+							tooltip: t('ampltbrampgt tags wil...')
+						} %}
+							{% block field_value %}
+									{% include '@ka_common/fields/checkbox.value.twig' with {
+										code: 'import_as_plain_text', 
+										checked: params['import_as_plain_text'],
+										value: 'Y'
+									} %}
+							{% endblock %}
+						{% endembed %}
+						
+						{% embed dir(_self) ~ 'field.twig' with { 
+							title: t('Template Product'),
+							tooltip: t('if template product is spec...')
+						} %}
+							{% block field_value %}
+								<div class="input-group">							
+									<input list="list-tpl_products" type="text" name="tpl_product" class="form-control" value="{% if (tpl_product) %} {{ tpl_product['name'] }} {% endif %}" {% if (tpl_product) %} disabled="disabled" {% endif %} />
+									<div class="input-group-btn" id="tpl_product_actions">
+										<a class="btn btn-info" id="view_tpl_product" target="_blank" 
+											{% if (tpl_product) %}href="{{ product_url }}&product_id={{ tpl_product['product_id'] }}"{% endif %} 
+												data-original-title="View"
+										>
+											<i class="fa fa-eye"></i>
+										</a>
+										<a class="btn btn-danger" id="clear_tpl_product" onclick="javascript: ka_step1.clearTplProduct();" href="javascript: void(0);" data-bs-toggle="tooltip" data-original-title="Clear"><i class="fa fa-trash"></i></a>
+									</div>
+									<datalist id="list-tpl_products"></datalist>
+								</div>
+								<span class="form-text">({{ t('Autocomplete') }})</span>
+								<input type="hidden" name="tpl_product_id" value="{% if (tpl_product['product_id']) %} {{ tpl_product['product_id'] }} {% endif %}" />
+							{% endblock %}
+						{% endembed %}
+
+						{% embed dir(_self) ~ 'field.twig' with { 
+							title: t('Key Field Prefix'),
+							tooltip: t('The field allows to add a p...')|replace({"%key_fields%": key_fields})
+						} %}
+							{% block field_value %}
+								<input type="text" name="key_field_prefix" maxlength="8" size="8" value="{{ params['key_field_prefix'] }}" class="form-control" />
+							{% endblock %}
+						{% endembed %}

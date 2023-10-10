@@ -1,0 +1,33 @@
+{#
+    $Project: CSV Product Import $
+    $Author: karapuz team <support@ka-station.com> $
+    $Version: 6.0.0.2 $ ($Revision: 572 $)
+#}
+
+						{% embed dir(_self) ~ 'field.twig' with { 
+							title: t('Path to Source Directory'),
+							tooltip: t('IMPORTANT File names must ...')
+						} %}
+							{% block field_value %}
+									<div class="input-group">
+									 	<span class="input-group-text">									
+											{{ store_root_dir ~ constant('DIRECTORY_SEPARATOR') }} 
+										</span>
+										<input class="form-control" type="text" name="download_source_dir" value="{{ params['download_source_dir'] }}" />
+									</div>
+							{% endblock %}
+						{% endembed %}
+								
+
+						{% embed dir(_self) ~ 'field.twig' with { 
+							title: t('Where to Get File Postfix')
+						} %}
+							{% block field_value %}
+								<select name="file_name_postfix" style="width: 300px"  class="form-select">
+									<option {% if (params['file_name_postfix'] == 'generate') %} selected="selected" {% endif %} value="generate">{{ t('Generate Random Postfixes') }}</option>
+									<option {% if (params['file_name_postfix'] == 'detect') %} selected="selected" {% endif %} value="detect">{{ t('Detect Postfixes in File Names') }}</option>
+									<option {% if (params['file_name_postfix'] == 'skip') %} selected="selected" {% endif %} value="skip">{{ t('Do Not Use Postfixes') }}</option>
+								</select>
+							{% endblock %}
+						{% endembed %}
+												

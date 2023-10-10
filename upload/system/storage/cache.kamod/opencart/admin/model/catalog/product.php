@@ -4,7 +4,7 @@
 	More information can be found at https://www.ka-station.com/kamod
 */
 
-namespace Opencart\Admin\Controller\Catalog;
+namespace Opencart\Admin\Model\Catalog;
 require_once(__DIR__ . '/product.0.kamod.php');
-class Product extends \extension\ka_product_import\ControllerCatalogProduct {
+class Product extends \extension\ka_product_import\ModelCatalogProduct {
 }

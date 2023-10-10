@@ -1,11 +1,5 @@
 <?php
 /*
-	This file was inherited by kamod.
-	More information can be found at https://www.ka-station.com/kamod
-	
-	Original file: extension/ka_product_import/kamod/admin/controller/catalog/product.php
-*/
-/*
 	$Project: CSV Product Import $
 	$Author: karapuz team <support@ka-station.com> $
 
@@ -14,9 +8,7 @@
 
 namespace extension\ka_product_import;
 
-require_once(__DIR__ . '/product.1.kamod.php');
-
-class ControllerCatalogProduct extends \extension\ka_extensions\ControllerCatalogProduct  {
+class ControllerCatalogProduct extends \Opencart\Admin\Controller\Catalog\Product {
 
 	use \extension\ka_extensions\TraitController;
 

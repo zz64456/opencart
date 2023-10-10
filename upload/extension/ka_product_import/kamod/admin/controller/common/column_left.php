@@ -1,11 +1,5 @@
 <?php
 /*
-	This file was inherited by kamod.
-	More information can be found at https://www.ka-station.com/kamod
-	
-	Original file: extension/ka_product_import/kamod/admin/controller/common/column_left.php
-*/
-/*
 	$Project: CSV Product Import $
 	$Author: karapuz team <support@ka-station.com> $
 
@@ -18,9 +12,7 @@ namespace extension\ka_product_import;
 
 use extension\ka_extensions\Arrays;
 
-require_once(__DIR__ . '/columnleft.1.kamod.php');
-
-class ControllerCommonColumnLeft extends \extension\ka_extensions\common\ControllerColumnLeft  {
+class ControllerCommonColumnLeft extends \Opencart\Admin\Controller\Common\ColumnLeft {
 
 	use \extension\ka_extensions\TraitController;
 

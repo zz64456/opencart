@@ -1,0 +1,29 @@
+{#
+    $Project: CSV Product Import $
+    $Author: karapuz team <support@ka-station.com> $
+    $Version: 6.0.0.2 $ ($Revision: 572 $)
+    
+    Mandatory Parameters:
+    title  
+    field_value - block
+
+    optional parameters:
+    tooltip
+    id
+    field_class
+    style
+#}
+
+						<div class="row mb-3" {% if id %} id="{{ id }}" {% endif %} {% if style %}style="{{ style }}"{% endif %}>
+							<label class="col-sm-3 col-form-label">
+								{% if tooltip %}
+									<span data-bs-toggle="popover" data-bs-content="{{ tooltip }}">
+								{% endif %}
+								{{ title }}
+								{% if tooltip %}</span>{% endif %}
+							</label>
+							<div class="col-sm-9 {% if field_class %}{{ field_class }}{% endif %}">
+								{% block field_value %}
+								{% endblock %}
+							</div>
+						</div>

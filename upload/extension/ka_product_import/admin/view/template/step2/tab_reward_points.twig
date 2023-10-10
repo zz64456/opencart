@@ -1,0 +1,35 @@
+{#
+    $Project: CSV Product Import $
+    $Author: karapuz team <support@ka-station.com> $
+    $Version: 6.0.0.2 $ ($Revision: 572 $)
+#}
+
+						{{ t('Product Reward Points.') }}
+						<br /><br />
+
+						<table class="table table-condensed table-striped table-hover">
+							<thead>
+								<tr>
+									<td class="left" width="25%">{{ t('Field') }}</td>
+									<td>{{ t('Column in File') }}</td>
+									<td width="50%">{{ t('Notes') }}</td>
+								</tr>
+							</thead>
+
+							<tbody>
+
+							{% for dk,dv in matches['reward_points'] %}            
+								<tr>
+									<td width="25%"><label class="control-label">{{ dv['name'] }}</label></td>
+									<td>
+									  <select name="reward_points[{{ dv.field }}]" class="form-select" autocomplete="off">
+										{% for key,column in columns %}
+										<option value="{{ key }}" {% if key == dv['column'] %} selected="selected" {% endif %}>{{ column }} {% if column in replacement_columns %} (#RPL) {% endif %}</option>
+										{% endfor %}
+									  </select>												
+									</td>
+									<td width="50%"><span class="help">{{ dv['descr'] }}</span></td>
+								</tr>
+							{% endfor %} 
+
+						</table>

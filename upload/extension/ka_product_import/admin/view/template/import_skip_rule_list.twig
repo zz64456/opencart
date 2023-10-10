@@ -1,0 +1,124 @@
+{#
+    $Project: CSV Product Import $
+    $Author: karapuz team <support@ka-station.com> $
+    $Version: 6.0.0.2 $ ($Revision: 572 $)
+#}
+{% extends '@ka_common/pages/page.twig' %}
+
+{% block page_buttons %}
+	{% import '@ka_common/macros/table.twig' as macros %}
+	
+	{{ macros.button_add(action_add, 'form-skip-rules') }}
+	{{ macros.button_delete(action_delete, "form-skip-rules") }}
+{% endblock %}        
+
+{% block page_contents %}
+
+	{% embed '@ka_common/card.twig' with {'header': t('txt_list_page_title'), icon:'fa-list'} %}
+		{% block contents %}
+			{% import '@ka_common/macros/table.twig' as macros %}
+			
+			<div class="alert alert-light" role="alert">
+				{{ t('<p>Here you can specify rul...') }}
+			</div>
+		
+			<form method="post" enctype="multipart/form-data" id="form-skip-rules">
+
+				<div class="row mb-3">
+					<label class="col-sm-2 col-form-label">
+						{{ t('Import Group') }}
+					</label>
+					<div class="col-sm-4">
+						<select id="import_group_id" name="import_group_id" class="form-select">
+							<option value=""></option>
+							{% for im in import_groups %}
+								<option value="{{ im.import_group_id }}" {% if params.filter_import_group_id == im.import_group_id %} selected="selected" {% endif %}>{{ im.name }}</option>
+							{% endfor %}
+						</select>
+						<a href="{{ import_groups_page }}">{{ t('Manage import groups') }}</a>
+					</div>
+				</div>
+				
+				
+				<div class="table-responsive">
+					<table class="table table-striped table-bordered table-hover">
+						<thead>
+							<tr>
+								<td width="1" style="text-align: center;"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" /></td>
+								<td>
+									<a {{ macros.sort_url('column_name', params['sort'], params['order'], _context) }}>{{ t('txt_title_column_name') }}</a>
+								</td>
+								<td>
+								{{ t('txt_title_pattern') }}
+								</td>
+								<td>
+								{{ t('txt_title_rule_action') }}
+								</td>
+								<td>
+								{{ t('txt_title_sort_order') }}
+								</td>
+								<td width="20%" class="right">{{ t('Action') }}</td>
+							</tr>
+						</thead>
+						<tbody>
+							{% if import_skip_rules %} 
+								{% for import_skip_rule in import_skip_rules %} 
+									<tr>
+										<td style="text-align: center;">{% if (import_skip_rule['selected']) %} 
+											<input type="checkbox" name="selected[]" value="{{ import_skip_rule['import_skip_rule_id'] }}" checked="checked" />
+											{% else %} 
+											<input type="checkbox" name="selected[]" value="{{ import_skip_rule['import_skip_rule_id'] }}" />
+											{% endif %}</td>
+												<td class="left">{{ import_skip_rule['column_name'] }}</td>
+												<td class="left">{{ import_skip_rule['pattern'] }}</td>
+												<td class="left">
+													{% if import_skip_rule['rule_action'] == 'I' %}{{ t('Include Line') }}{% else %}{{ t('Exclude Line') }}{% endif %}
+												</td>
+												<td class="left">{{ import_skip_rule['sort_order'] }}</td>
+												<td class="right">
+											{% for action in import_skip_rule['action'] %} 
+												<a href="{{ action['href'] }}" class="btn btn-primary"><i class="fa fa-pencil-alt"></i></a>
+											{% endfor %}</td>
+									</tr>
+								{% endfor %} 
+							{% else %} 
+								<tr>
+									<td class="text-center" colspan="6">{{ t('text_no_results') }}</td>
+								</tr>
+							{% endif %} 
+						</tbody>
+					</table>
+				</div>
+				
+			</form>
+			
+			
+			<div class="row">
+				<div class="col-sm-6 text-start">{{ pagination }}</div>
+				<div class="col-sm-6 text-end">{{ results }}</div>
+			</div>
+			
+		{% endblock %}
+	{% endembed %}
+
+<script>
+
+$(document).ready(function() {
+
+$('#import_group_id').on('change', function() {
+
+	var url = '';
+
+	filter_import_group_id = $(this).val();
+	if (filter_import_group_id) {
+		url += '&filter_import_group_id=' + encodeURIComponent(filter_import_group_id);
+	}
+	
+	location = 'index.php?route=extension/ka_product_import/import_skip_rule&user_token={{ user_token }}' + url;
+});
+
+});
+
+</script>
+
+{% endblock %}

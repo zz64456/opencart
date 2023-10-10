@@ -1,0 +1,182 @@
+{#
+    $Project: CSV Product Import $
+    $Author: karapuz team <support@ka-station.com> $
+    $Version: 6.0.0.2 $ ($Revision: 572 $)
+#}
+{% import '@ka_common/macros/table.twig' as macros %}
+
+{% extends '@ka_common/pages/page.twig' %}
+
+{% block page_buttons %}
+	
+	{{ macros.button_save(action_save, 'form-replacements') }}
+	{{ macros.button_delete(action_delete, "form-replacements") }}
+
+{% endblock %}        
+
+{% block page_contents %}
+
+	<div class="row">
+		<div class="col-sm-12 mb-3" id="filter-replacements">
+			{% embed '@ka_common/card.twig' with {'header': t('Filter'), icon:'fa-list'} %}
+				{% import '@ka_common/macros/table.twig' as macros %}
+				{% block contents %}
+					<form action="{{ action_filter }}" id="form-filter">
+						<div class="row">
+							<div class="col-sm-6 mb-3">
+					      <div class="form-group">
+					        <label class="form-label" for="input-text">{{ t('Column Name') }}</label>
+					        <input type="text" value="{{ params['filter_text'] }}" placeholder="{{ t('Column Name') }}" id="input-text" class="form-control" />
+					      </div>
+					    </div>
+							<div class="col-sm-6 mb-3">
+					      <div class="form-group">
+									<label class="form-label">{{ t('Import Group') }}</label>
+									<div>
+										<select id="import_group_id" name="import_group_id" class="form-control" autocomplete="off">
+											<option value=""></option>
+											{% for im in import_groups %}
+												<option value="{{ im.import_group_id }}" {% if params.filter_import_group_id == im.import_group_id %} selected="selected" {% endif %}>{{ im.name }}</option>
+											{% endfor %}
+										</select>
+										<a href="{{ import_groups_page }}">{{ t('manage import groups') }}</a>
+									</div>
+					      </div>
+					      <div class="text-end">
+									{{ macros.button_filter('form-filter') }}
+									{{ macros.button_reset('form-filter') }}
+						    </div>
+					    </div>
+				    </div>
+					</form>
+				{% endblock %}
+			{% endembed %}
+		</div>
+	</div>
+
+	{% embed '@ka_common/card.twig' with {'header': t('Import Replacements'), icon:'fa-list'} %}
+		{% block contents %}
+			{% import '@ka_common/macros/table.twig' as macros %}
+			
+			<div class="alert alert-light" role="alert">
+				{{ t('This page helps to add auto...') }}
+			</div>
+		
+			<form action="{{ action_save }}" method="post" enctype="multipart/form-data" id="form-replacements">
+				<div class="table-responsive">
+					<table class="table table-bordered table-hover" id="replacements_list_id">
+						<thead>
+							<tr>
+								<td width="1" class="text-center"><input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" /></td>
+								<td>
+									<a {{ macros.sort_url('name', params['sort'], params['order'], _context) }}>{{ t('Column Name') }}</a>
+								</td>
+	              <td class="text-start">{{ t('Old Value') }}</td>
+	              <td class="text-start">{{ t('New Value') }}</td>
+	              <td class="text-start">{{ t('Import Group') }}</td>
+								<td width="140px" class="text-end">{{ t('Action') }}</td>
+							</tr>
+						</thead>
+	          <tbody>
+	          {% set replacement_row = 0 %}
+						{% for replacement in replacements %} 
+	            <tr id="replacement_row{{ replacement_row }}" {% if (replacement_row == 0) %} style="display:none" {% endif %}>
+	              <td class="text-center">{% if (replacement['import_replacement_id'] in selected) %} 
+	                <input type="checkbox" name="selected[]" value="{{ replacement['import_replacement_id'] }}" checked="checked" />
+	                {% else %} 
+	                <input type="checkbox" name="selected[]" value="{{ replacement['import_replacement_id'] }}" />
+	                {% endif %} 
+	              </td>
+	              <td class="text-start">
+	                <input type="hidden" name="replacements[{{ replacement_row }}][to_delete]" value="" />
+	              	<input type="hidden" name="replacements[{{ replacement_row }}][import_replacement_id]" value="{{ replacement['import_replacement_id'] }}" />
+	              	<input type="text" name="replacements[{{ replacement_row }}][column_name]" value="{{ replacement['column_name'] }}" class="form-control" />
+	              </td>
+	              <td class="text-start">
+	              	<input type="text" name="replacements[{{ replacement_row }}][old_value]" value="{{ replacement['old_value'] }}" class="form-control" />
+	              </td>
+	              <td class="text-start">
+	              	<input type="text" name="replacements[{{ replacement_row }}][new_value]" value="{{ replacement['new_value'] }}" class="form-control" />
+	              </td>
+	              <td class="text-start">
+									<select name="replacements[{{ replacement_row }}][import_group_id]" class="form-select" autocomplete="off">
+										<option value=""></option>
+										{% for im in import_groups %}
+											<option value="{{ im.import_group_id }}" {% if replacement.import_group_id == im.import_group_id %} selected="selected" {% endif %}>{{ im.name }}</option>
+										{% endfor %}
+									</select>
+	              </td>
+	              <td>
+		              <button type="button" onclick="javascript: onDeleteRow($(this).parent().parent());" data-bs-toggle="tooltip" title="{{ t('button_remove') }}"  class="btn btn-danger"><i class="fas fa-minus-circle"></i></button>
+	              </td>	              
+	            </tr>
+	            {% set replacement_row = replacement_row + 1 %}
+					 	{% endfor %} 
+	          </tbody>
+						<tfoot>
+							<tr>
+								<td colspan="5">&nbsp;</td>									
+								<td class="text-start"><button type="button" onclick="addReplacement();" data-toggle="tooltip" title="{{ t('Add') }}" class="btn btn-primary"><i class="fa fa-plus-circle"></i></button></td>
+							</tr>
+						</tfoot>
+	        </table>
+      	</div>
+			</form>
+			<div class="row">
+				<div class="col-sm-6 text-start">{{ pagination }}</div>
+				<div class="col-sm-6 text-end">{{ results }}</div>
+			</div>
+			
+		{% endblock %}
+	{% endembed %}
+
+<script type="text/javascript"><!--
+var replacement_row = {{ replacements|length }};
+
+function addReplacement() {
+  var sample_row = $('#replacement_row0').clone();
+  
+  sample_row.prop('id', 'replacement_row' + replacement_row); 
+  sample_row.find("[name^='replacements']").each(function() {
+  	var $this = $(this);
+    $this.prop('name', $(this).prop('name').replace('[0]', '[' + replacement_row + ']'));
+    $this.attr('required', 'required');
+  });
+
+  var filter_import_group_id = $('#import_group_id').val();
+  if (filter_import_group_id) {
+	  sample_row.find("select[name*=import_group_id]").val(filter_import_group_id);
+	}
+  
+  sample_row.insertAfter('#replacements_list_id > tbody > tr:last');
+  sample_row.css('display', '');  
+  replacement_row++;
+}
+
+$('#form-filter .l-button-filter').on('click', function() {
+
+	var url = '';
+
+	var filter_import_group_id = $('#import_group_id').val();
+	if (filter_import_group_id) {
+		url += '&filter_import_group_id=' + encodeURIComponent(filter_import_group_id);
+	}
+
+	var text = $('#input-text').val();
+	if (text) {
+		url += '&filter_text=' + encodeURIComponent(text);
+	}
+	
+	location = 'index.php?route=extension/ka_product_import/replacements&user_token={{ user_token }}' + url;
+});
+
+
+function onDeleteRow($row) {
+	$row.hide();
+	$row.find("input[name*='[to_delete]']").attr('value', '1');
+	$row.find("input[type='checkbox']").attr('checked', 'checked');
+}
+
+//--></script> 
+
+{% endblock %}

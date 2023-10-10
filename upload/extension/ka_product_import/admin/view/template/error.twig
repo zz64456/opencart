@@ -1,0 +1,24 @@
+{#
+    $Project: CSV Product Import $
+    $Author: karapuz team <support@ka-station.com> $
+    $Version: 6.0.0.2 $ ($Revision: 572 $)
+#}
+
+{% extends '@ka_common/pages/page.twig' %}
+
+{% block page_contents %}
+
+	{% embed '@ka_common/alert.twig' with {type: 'E'} %}
+
+		{% block contents %}
+		
+			{% if (is_wrong_db) %}
+			  <h3>{{ t('Database is not compatible ...') }}</h3>
+				{{ t('Please re-install the exten...') }}
+			{% endif %}
+
+		{% endblock contents %}
+
+	{% endembed %}
+
+{% endblock %}

@@ -8,7 +8,7 @@
 
 $_['Database is not compatible ...'] = 'Database is not compatible with the extension.';
 $_['Please re-install the exten...'] = 'Please re-install the extension at the \'Ka Extensions\' page.</br>
-				It means you need to click \'Uninstall\' link and after the page refreshes click on the \'Install\' link. 
+				It means you need to click \'Uninstall\' link and after the page refreshes click on the \'Install\' link.
 				That should help make the database up to date for the current version of the import extension.';
 $_['ERROR: Stream filter is not...'] = 'ERROR: Stream filter is not found';
 $_['The convert.iconv.* filter ...'] = 'The convert.iconv.* filter is not found on your server. You have to install it to the server because
@@ -204,6 +204,8 @@ $_['The extension is not installed'] = 'The extension is not installed';
 $_['txt_form_page_title'] = 'CSV Product Import';
 
 $_['error_file_not_found']    = 'Sorry, the file was not found. Please verify that the file exists and its size is less than the maximum upload limit.';
-$_['error_cannot_move_file']  = 'Uploaded File cannot be moved to a temporary directory ({dest_dir}). Check directory permissons.';
+$_['error_cannot_move_file']  = 'Uploaded File cannot be moved to a temporary directory ({dest_dir}). Check directory permissions.';
+$_['error_cannot_move_file2']  = 'Uploaded File2 cannot be moved to a temporary directory ({dest_dir}). Check directory permissions.';
+
 
 $_['txt_descr_master_model'] = 'When the master model is not empty, a new product will be created as a variant of that master product.';

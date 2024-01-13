@@ -2,7 +2,7 @@
 /*
  $Project: CSV Product Import $
  $Author: karapuz team <support@ka-station.com> $
- $Version: 6.0.0.2 $ ($Revision: 573 $) 
+ $Version: 6.0.0.2 $ ($Revision: 573 $)
 */
 
 namespace extension\ka_product_import;
@@ -18,22 +18,22 @@ class ModelImport extends \extension\ka_extensions\Model {
 	const RECORD_TYPE_FIRST_VARIANT_PROCESSED = 3;
 
 	public $sec_per_cycle    = 10;
-	
+
 	protected $enclosure        = '"';
 	protected $escape           = "\x00";
 
 	// available delimiters
 	protected $delimiters;
-	
+
 	// timestamp when the import started (to prevent page time outs)
 	protected $started_at;
-	
+
 	// available key fields
 	public $key_fields;
-	
+
 	// kaformat object for parsing prices and other
 	public $kaformat;
-	
+
 	// file object
 	protected $file;
 
@@ -41,7 +41,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 	private $kamodel_replacements;
 	private $kamodel_skip_rule;
 	private $kamodel_price_rule;
-	
+
 	// session variables
 	//
 	// they are public for a quick access from the task
@@ -51,14 +51,14 @@ class ModelImport extends \extension\ka_extensions\Model {
 
 	// this value will contain the main import model like 'import_product'
 	protected $import_model;
-	
+
 	protected $org_error_handler = null;
 
 	public $lastError;
-	
+
 	// replacements cache
 	protected $replacements;
-	
+
 	// skip imports
 	protected $skip_rules;
 
@@ -69,7 +69,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 	protected $messages;
 	protected $entity_mark = ''; // current entity identfier for showing in import messages
 	protected $kalog = null;
-	
+
 	// these errors will throw an exception instead of showing a warning/notice in the log
 	//
 	protected $catchable_errors = array(
@@ -97,27 +97,28 @@ class ModelImport extends \extension\ka_extensions\Model {
 			'|'  => $this->language->get('pipe') . ' "|"',
 			' '  => $this->language->get('space') .' " "',
 		);
-		
+
 		$this->kaformat = new \extension\ka_extensions\Format();
-		
+
 		$this->file = new \extension\ka_extensions\FileUTF8();
-		
+		$this->file2 = new \extension\ka_extensions\FileUTF8();
+
  		$this->stat   = &$this->getSession('stat');
 		$this->params = &$this->getSession('params');
-		
+
  		$this->kalog    = new \Opencart\System\Library\Log('ka_product_import.log');
 
  		$upd = $this->config->get('ka_product_import_update_interval');
  		if ($upd >= 5 && $upd <= 25) {
  			$this->sec_per_cycle = $upd;
  		}
- 		
+
 		$this->load->model('catalog/product');
-		
-		$this->org_error_handler = set_error_handler(array($this, 'import_error_handler'));	
-		
+
+		$this->org_error_handler = set_error_handler(array($this, 'import_error_handler'));
+
 		$this->kacurl = new \extension\ka_extensions\CURL();
-		
+
 		$this->kamodel_import_group = $this->load->kamodel('extension/ka_product_import/import_group');
 		$this->kamodel_replacements = $this->load->kamodel('extension/ka_product_import/replacements');
 		$this->kamodel_skip_rule    = $this->load->kamodel('extension/ka_product_import/import_skip_rule');
@@ -128,16 +129,16 @@ class ModelImport extends \extension\ka_extensions\Model {
 		$this->load->model('localisation/language');
 		$this->languages = $this->model_localisation_language->getLanguages();
 	}
-	
-	
+
+
 	protected function getRealDelimiter($arg_delimiter) {
-		$delimiter = str_replace(['tab', '\s'],["\t"," "], $arg_delimiter);	
+		$delimiter = str_replace(['tab', '\s'],["\t"," "], $arg_delimiter);
 		return $delimiter;
 	}
-	
+
 
 	public function getDefaultImportParams() {
-	
+
 		$params = array(
 			'update_mode'         => 'add',
 			'cat_separator'       => '///',
@@ -173,15 +174,15 @@ class ModelImport extends \extension\ka_extensions\Model {
 
 		return $params;
 	}
-	
-	
+
+
 	// it is used as a marker to stop any existing import
 	//
 	public function resetStat() {
 		$this->stat = array();
 	}
-	
-	
+
+
 	public function import_error_handler($errno, $errstr, $errfile, $errline) {
 
 		if (empty($this->stat['status'])) {
@@ -197,7 +198,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 				throw new \Exception($errstr);
 			}
 		}
-		
+
 		return call_user_func_array($this->org_error_handler, func_get_args());
 	}
 
@@ -205,10 +206,15 @@ class ModelImport extends \extension\ka_extensions\Model {
 		return $this->sec_per_cycle;
 	}
 	
-	public function setImportModel($import_model) {
+	public function setImportModel($import_model, $fileType = 'kamod') {
 		$this->import_model = $import_model;
-		$this->key_fields = $this->import_model->getKeyFields();
 		
+		if ($fileType == 'shopee') {
+            $this->key_fields = $this->import_model->getKeyFieldsShopee();
+		} else {
+            $this->key_fields = $this->import_model->getKeyFields();
+		}
+        
 		$this->import_model->setImport($this);
 		
 		
@@ -221,7 +227,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 			return false;
 		}
 
-		$res = $this->db->query("SHOW TABLES LIKE '" . DB_PREFIX . "ka_product_import'");		
+		$res = $this->db->query("SHOW TABLES LIKE '" . DB_PREFIX . "ka_product_import'");
 		if (empty($res->rows)) {
 			return false;
 		}
@@ -235,10 +241,10 @@ class ModelImport extends \extension\ka_extensions\Model {
 		if (empty($res->rows)) {
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 
 	public function getUploadMaxFilesize() {
 		static $max_filesize;
@@ -252,7 +258,7 @@ class ModelImport extends \extension\ka_extensions\Model {
     	return $max_filesize;
 	}
 
-	
+
 	public function getStores() {
 
 		$this->load->model('setting/store');
@@ -267,7 +273,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 		return $stores;
 	}
 
-	
+
 	public function getCharsets() {
 		$arr = array(
 			'ISO-8859-1'   => $this->language->get('ISO-8859-1 (Western Europe)'),
@@ -297,9 +303,9 @@ class ModelImport extends \extension\ka_extensions\Model {
 		return $this->delimiters;
 	}
 
-	
+
 	public function examineFileData($file) {
-	
+
 		$result = array(
 			'error' => '',
 			'charset' => '',
@@ -309,45 +315,45 @@ class ModelImport extends \extension\ka_extensions\Model {
 		if (empty($file)) {
 			return $result;
 		}
-		
+
 		if (ord($file[0]) == 0xd0 && ord($file[1]) == 0xcf) {
 			$result['error'] = $this->language->get('The file looks like a nativ...');
 			return $result;
 		}
-		
+
 		if ((ord($file[0]) == 0xff && ord($file[1]) == 0xfe)
 		) {
 			$result['charset'] = 'UTF-16';
 		} elseif (ord($file[0]) == 0xef && ord($file[1]) == 0xbb) {
 			$result['charset'] = 'UTF-8';
 		}
-		
+
 		// try to detect a field delimiter
 		//
 		$max = array(
 			'delimiter' => '',
 			'count' => 0,
-		);		
+		);
 		foreach ($this->delimiters as $delimiter => $name) {
-		
+
 			$real_delimiter = $this->getRealDelimiter($delimiter);
-		
+
 			if (in_array($real_delimiter, array(' '))) {
 				continue;
 			}
-		
+
 			$arr = str_getcsv($file, $real_delimiter);
-			
+
 			if (count($arr) > $max['count']) {
 				$max['delimiter'] = $delimiter;
 				$max['count']     = count($arr);
 			}
 		}
-		
+
 		if ($max['count'] >= 4) {
 			$result['delimiter'] = $max['delimiter'];
 		}
-		
+
 		return $result;
 	}
 
@@ -368,46 +374,67 @@ class ModelImport extends \extension\ka_extensions\Model {
 		if (!empty($params['opt_enable_macfix'])) {
 			$options['enable_macfix'] = true;
 		}
-		
+
 		if (!$this->file->fopen($params['file'], 'r', $options, $params['charset'])) {
 			$this->lastError = $this->file->getLastError();
 			return false;
 		}
-		
+
+		if ($params['fileType'] == 'shopee') {
+			if (!$this->file2->fopen($params['file2'], 'r', $options, $params['charset'])) {
+				$this->lastError = $this->file2->getLastError();
+				return false;
+			}
+		}
+
 		return true;
 	}
 
-	
-	public function readColumns($delimiter) {
+
+	public function readColumns($delimiter, $fileType = 'kamod') {
 
 		if (strlen($delimiter)) {
 			$this->lastError = "Delimiter is empty";
 			$delimiter = $this->getRealDelimiter($delimiter);
 		}
-	
+
 		if (empty($this->file->handle)) {
 			$this->lastError = "readColumns: file handle is not valid.";
 			return false;
 		}
-	
+
 		$this->file->rewind();
-		
+
 		$columns = fgetcsv($this->file->handle, 0, $delimiter, $this->enclosure, $this->escape);
 		if (empty($columns)) {
 			return false;
 		}
+        
+		if ($fileType == 'shopee') {
+			// file2
+			if (empty($this->file2->handle)) {
+				$this->lastError = "readColumns: file handle is not valid.";
+				return false;
+			}
+			$this->file2->rewind();
+
+			$columns2 = fgetcsv($this->file2->handle, 0, $delimiter, $this->enclosure, $this->escape);
+			if (empty($columns2)) {
+				return false;
+			}
+		}
 
 		$count = array();
-		
+
 		$new_columns = array();
 		foreach ($columns as $cv) {
 			$cv = trim($cv);
-			
+
 			// specify a name for empty columns
 			if (empty($cv)) {
 				$cv = 'empty';
 			}
-			
+
 			if (!empty($count[$cv])) {
 				$count[$cv]++;
 				$cv = $cv . '-' . $count[$cv];
@@ -415,6 +442,31 @@ class ModelImport extends \extension\ka_extensions\Model {
 				$count[$cv] = 1;
 			}
 			$new_columns[] = $cv;
+		}
+
+        
+		if ($fileType == 'shopee') {
+			$count2 = array();
+
+			$new_columns2 = array();
+			foreach ($columns2 as $cv) {
+				$cv = trim($cv);
+
+				// specify a name for empty columns
+				if (empty($cv)) {
+					$cv = 'empty';
+				}
+
+				if (!empty($count2[$cv])) {
+					$count2[$cv]++;
+					$cv = $cv . '-' . $count2[$cv];
+				} else {
+					$count2[$cv] = 1;
+				}
+				$new_columns2[] = $cv;
+			}
+            
+            return array_unique(array_merge($new_columns,$new_columns2), SORT_REGULAR);
 		}
 
 		return $new_columns;
@@ -430,9 +482,9 @@ class ModelImport extends \extension\ka_extensions\Model {
 			...
 	*/
 	public function getMatchesByPositions($sets, $columns, $post) {
-
+        
 		$matches = array();
-		
+
 		foreach ($sets as $sk => $sv) {
 
 			if (empty($sv)) {
@@ -442,30 +494,30 @@ class ModelImport extends \extension\ka_extensions\Model {
 			if (empty($post[$sk])) {
 				continue;
 			}
-			
+
 			$fields = $post[$sk];
 
 			foreach ($sv as $f_idx => $f_data) {
-			
+
 				if ($sk == 'filter_groups') {
 					$f_key = $f_data['filter_group_id'];
-					
+
 				} elseif ($sk == 'attributes') {
 					$f_key = $f_data['attribute_id'];
-					
+
 				} elseif ($sk == 'options') {
 					$f_key = $f_data['option_id'];
-					
+
 				} else {
 					$f_key = (isset($f_data['field']) ? $f_data['field'] : $f_idx);
 				}
-				
+
 				if (isset($fields[$f_key])) {
-				
+
 					if (!isset($matches[$sk])) {
 						$matches[$sk] = array();
 					}
-					
+
 					if ($sk == 'options') {
 						foreach ($fields[$f_key] as $ffk => $ffv) {
 							if ($fields[$f_key][$ffk] > 0) {
@@ -476,15 +528,15 @@ class ModelImport extends \extension\ka_extensions\Model {
 						}
 						continue;
 					}
-				
+
 					if (is_array($fields[$f_key])) {
 
 						if (empty($f_data)) {
 							$fields[$f_key] = array_unique($fields[$f_key]);
 						}
-						
+
 						$matches[$sk][$f_key] = array();
-						
+
 						foreach ($fields[$f_key] as $ffk => $ffv) {
 							if ($fields[$f_key][$ffk] > 0) {
 								if (!empty($f_data)) {
@@ -494,7 +546,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 								}
 							}
 						}
-						
+
 					} else {
 						if ($fields[$f_key] > 0) {
 							$matches[$sk][$f_key] = $columns[$fields[$f_key]-1];
@@ -507,14 +559,14 @@ class ModelImport extends \extension\ka_extensions\Model {
 		}
 
 		$matches['required_options'] = (isset($post['required_options'])) ? $post['required_options'] : array();
-		
+
 		$matches['set_default_for'] = (isset($post['set_default_for'])) ? $post['set_default_for'] : array();
 
 		return $matches;
 	}
 
 
-	
+
 	/*
 		PARAMETERS:
 			$sets - an array with field sets
@@ -531,7 +583,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 					'options'    =>
 					'attributes' =>
 					...
-			 	
+
 			$columns - an array with column names like
 				arrray(
 					0 => 'model'
@@ -545,6 +597,11 @@ class ModelImport extends \extension\ka_extensions\Model {
 	*/
 	public function getMatchesByColumnNames($sets, $columns) {
 
+        /**
+         * 將檔案內的欄位，做預設分派： 像是 et_title_variation_price -> 金額
+         * et_title_variation_stock -> 庫存
+         */
+
 		$tmp = array();
 		
 		foreach ($columns as $ck => $cv) {
@@ -552,9 +609,9 @@ class ModelImport extends \extension\ka_extensions\Model {
 			$tmp[$field_key] = $cv;
 		}
 		$columns = $tmp;
-		
+
 		$matches = array();
-		
+
 		/*
 			'set name' => (
 				<field id>
@@ -563,9 +620,9 @@ class ModelImport extends \extension\ka_extensions\Model {
 			);
 		*/
 		$prefixes = array(
-			'fields'        => array('field', 'name', ''), 
+			'fields'        => array('field', 'name', ''),
 			'attributes'    => array('attribute_id', 'name', 'attribute:'),
-			'filter_groups' => array('filter_group_id', 'name', 'filter:'), 
+			'filter_groups' => array('filter_group_id', 'name', 'filter:'),
 			'options'       => array('option_id', 'name', 'simple option:'),
 			'ext_options'   => array('field', 'name', 'option:'),
 			'discounts'     => array('field', 'name', 'discount:'),
@@ -582,18 +639,18 @@ class ModelImport extends \extension\ka_extensions\Model {
 			} else {
 				$prefix = $prefixes['fields'];
 			}
-		
+
 			if ($sk == 'options') {
-			
+
 				foreach ($sv as $ok => $ov) {
-				
+
 					foreach ($ov['fields'] as $fk => $fv) {
-					
+
 						if (isset($fv['column'])) {
 							$matches[$sk][$ov['option_id']]['expanded'] = true;
 							continue;
 						}
-				
+
 						$name = $this->unclean($prefix[2] . trim($ov['name']));
 
 						$possible_names = array();
@@ -670,15 +727,158 @@ class ModelImport extends \extension\ka_extensions\Model {
 
 		return $matches;
 	}
-	
-	
+
+    public function getShopeeMatchesByColumnNames($sets, $columns) {
+
+        /**
+         * 將檔案內的欄位，做預設分派： 像是 et_title_variation_price -> 金額
+         * et_title_variation_stock -> 庫存
+         */
+
+        $tmp = array();
+
+        foreach ($columns as $ck => $cv) {
+            $field_key = trim(mb_strtolower($cv, 'utf-8'));
+            $tmp[$field_key] = $cv;
+        }
+        $columns = $tmp;
+
+        $matches = array();
+
+        /*
+            'set name' => (
+                <field id>
+                <readable name for users>
+                <prefix>
+            );
+        */
+        $prefixes = array(
+            'fields'        => array('field', 'name', ''),
+            'attributes'    => array('attribute_id', 'name', 'attribute:'),
+            'filter_groups' => array('filter_group_id', 'name', 'filter:'),
+            'options'       => array('option_id', 'name', 'simple option:'),
+            'ext_options'   => array('field', 'name', 'option:'),
+            'discounts'     => array('field', 'name', 'discount:'),
+            'specials'      => array('field', 'name', 'special:'),
+            'reward_points' => array('field', 'name', 'reward points:'),
+            'subscriptions' => array('field', 'name', 'subscription:'),
+            'reviews'       => array('field', 'name', 'review:'),
+        );
+
+        foreach ($sets as $sk => $sv) {
+        
+//            dd($sk, $sv);
+
+            if (!empty($prefixes[$sk])) {
+                $prefix = $prefixes[$sk];
+            } else {
+                $prefix = $prefixes['fields'];
+            }
+
+            if ($sk == 'options') {
+
+                foreach ($sv as $ok => $ov) {
+
+                    foreach ($ov['fields'] as $fk => $fv) {
+
+                        if (isset($fv['column'])) {
+                            $matches[$sk][$ov['option_id']]['expanded'] = true;
+                            continue;
+                        }
+
+                        $name = $this->unclean($prefix[2] . trim($ov['name']));
+
+                        $possible_names = array();
+                        if ($fv['field'] == 'value') {
+                            $possible_names[] = mb_strtolower($name);
+                            $possible_names[] = trim(mb_strtolower($ov['name']));
+                        } else {
+                            $possible_names[] = mb_strtolower($name . ':' . $fv['field']);
+                            $possible_names[] = mb_strtolower($name . ':' . $fv['name']);
+                        }
+
+                        $column_indexes = $this->findColumnsByNames($columns, $possible_names);
+
+                        if (!empty($column_indexes)) {
+                            $matches[$sk][$ov['option_id']]['fields'][$fk] = $column_indexes;
+                            $matches[$sk][$ov['option_id']]['expanded'] = true;
+                        }
+                    }
+
+                }
+
+            } else {
+
+//			    dd($sk, $prefix, quit: false);
+
+//                dd($sv);
+
+                foreach ($sv as $idx => $field) {
+
+                    $code = $field[$prefix[0]];
+                    
+                    // mulit-value columns with named columns
+                    //
+                    if (!empty($field['values'])) {
+
+                        $matched_columns = array();
+
+                        foreach ($field['values'] as $mvk => $mvv) {
+
+                            $possible_names = array(
+                                $prefix[2] . mb_strtolower($field[$prefix[0]] . ':' . $mvv['code'], 'utf-8'),
+                                $prefix[2] . mb_strtolower($field[$prefix[1]] . ':' . $mvv['code'], 'utf-8')
+                            );
+
+                            if (!empty($mvv['is_default'])) {
+                                $possible_names = array_merge($possible_names,
+                                    array(
+                                        $prefix[2] . mb_strtolower($field[$prefix[0]], 'utf-8'),
+                                        $prefix[2] . mb_strtolower($field[$prefix[1]], 'utf-8')
+                                    )
+                                );
+                            }
+                            
+//                            dd($possible_names);
+
+                            $column_index = $this->findColumnsByNames($columns, $possible_names);
+                            if (!is_null($column_index)) {
+                                $matches[$sk][$code][$mvv['language_id']] = $column_index;
+                                
+//                                dd($matches);
+                            }
+                        }
+
+                        // regular and cloned columns (cloned columns use numeric indexes)
+                        //
+                    } else {
+
+                        $possible_names = array(
+                            $prefix[2] . mb_strtolower($field[$prefix[0]], 'utf-8'),
+                            $prefix[2] . mb_strtolower($field[$prefix[1]], 'utf-8')
+                        );
+
+                        $column_index = $this->findColumnsByNames($columns, $possible_names, !empty($field['can_be_cloned']));
+
+                        if (!is_null($column_index)) {
+                            $matches[$sk][$code] = $column_index;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $matches;
+    }
+
+
 	/*
 		PARAMETERS:
 			columns - list of all columns from the file
 			names   - suitable column names
 			is_multi_value - indication of a field that may have multiple columns (array can be returned)
 			                 like multiple images, language fields
-			                 
+
 		RETURNS:
 			null    - when no matched column found
 			column  - index of matched column
@@ -689,13 +889,13 @@ class ModelImport extends \extension\ka_extensions\Model {
 		$column_keys = array();
 
 		foreach ($names as $name) {
-		
+
 			if (empty($name)) {
 				continue;
 			}
-			
+
 			$search_name = str_replace(['_', ' '], '', $name);
-		
+
 			foreach ($columns as $ck => $cv) {
 
 				if (empty($ck)) {
@@ -705,8 +905,8 @@ class ModelImport extends \extension\ka_extensions\Model {
 				$col_name = str_replace(['_',' '], '', (string)$ck);
 
 				if ($col_name == $search_name) {
-					$column_keys[] = $columns[$ck];	
-					
+					$column_keys[] = $columns[$ck];
+
 				} elseif ($is_multi_value) {
 					$col_name = str_replace(['_', ' '], '', (string)$ck);
 					if (stripos($col_name, $search_name) === 0) {
@@ -720,7 +920,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 		if (empty($column_keys)) {
 			return null;
 		}
-		
+
 		// multi value
 		if ($is_multi_value) {
 			$column_keys = array_unique($column_keys);
@@ -729,10 +929,10 @@ class ModelImport extends \extension\ka_extensions\Model {
 
 		// single value
 		$column_keys = reset($column_keys);
-		
+
 		return $column_keys;
 	}
-	
+
 
 	/*
 		$sets    - sets array
@@ -740,7 +940,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 		$columns - array of column names (<position> => <name>)
 	*/
 	public function copyMatchesToSets(&$sets, $matches, $columns) {
-	
+
 		// remove empty columns except the first one meaning 'not selected'
 		//
 		foreach ($columns as $ck => $cv) {
@@ -751,24 +951,24 @@ class ModelImport extends \extension\ka_extensions\Model {
 		$columns = $tmp;
 
 		foreach ($sets as $sk => $sv) {
-		
+
 			foreach ($sv as $f_idx => $f_data) {
 				if ($sk == 'filter_groups') {
 					$f_key = $f_data['filter_group_id'];
-					
+
 				} elseif ($sk == 'attributes') {
 					$f_key = $f_data['attribute_id'];
-					
+
 				} elseif ($sk == 'options') {
 					$f_key = $f_data['option_id'];
 
 					if (isset($matches['required_options'][$f_key])) {
 						$sets[$sk][$f_idx]['required'] = $matches['required_options'][$f_key];
 					}
-					
+
 				} else {
 					$f_key = (isset($f_data['field']) ? $f_data['field'] : $f_idx);
-					
+
 					if (isset($matches['set_default_for'][$f_key])) {
 						$sets[$sk][$f_idx]['set_default_for'] = $matches['set_default_for'][$f_key];
 					}
@@ -785,10 +985,10 @@ class ModelImport extends \extension\ka_extensions\Model {
 								}
 							}
 						}
-						
+
 						continue;
 					}
-				
+
 					// the field can be array when
 					// - it has language-specified values
 					// - it may have many values like additional images
@@ -806,17 +1006,19 @@ class ModelImport extends \extension\ka_extensions\Model {
 							$sets[$sk][$f_idx]['column'] = $columns[$matches[$sk][$f_key]];
 						}
 					}
+
+//                    $this->load->test($sets);
 				}
 			}
 		}
 
 		return true;
 	}
-	
+
 	/*
 		- remove sets if they are not required in the current import
 		- set default values
-			
+
 	*/
 	protected function prepareSetsForImport(&$sets, $columns, $default) {
 
@@ -825,7 +1027,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 		//
 		$columns_in_use = array();
 		foreach ($sets as $sk => $sv) {
-		
+
 			$has_column = false;
 			foreach ($sv as $msk => $msv) {
 
@@ -843,20 +1045,20 @@ class ModelImport extends \extension\ka_extensions\Model {
 					if (!$has_fields) {
 						unset($sets[$sk][$msk]);
 					}
-					
+
 				} elseif (isset($msv['column'])) {
 					if (!is_array($msv['column'])) {
 						$columns_in_use[$columns[$msv['column']]] = $msv['column'];
 					} else {
 						if (empty($msv['column'])) {
-							unset($sets[$sk][$msk]);						
+							unset($sets[$sk][$msk]);
 							continue;
 						}
 						foreach ($msv['column'] as $colk => $colv) {
 							$columns_in_use[$columns[$colv]] = $colv;
 						}
 					}
-					
+
 				} elseif (!empty($msv['set_default_for'])) {
 
 				} else {
@@ -869,7 +1071,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 					$sets[$sk][$msk]['default_value'] = $default[$msv['field']];
 				}
 			}
-			
+
 			if (!$has_column) {
 				unset($sets[$sk]);
 			}
@@ -877,33 +1079,44 @@ class ModelImport extends \extension\ka_extensions\Model {
 
 		return $columns_in_use;
 	}
-	
+
+    public function getShopeeFieldSets($params) {
+
+        $sets = $this->import_model->getShopeeFieldSets($params);
+
+        return $sets;
+    }
+
 	public function getFieldSets($params) {
-	
+
 		$sets = $this->import_model->getFieldSets($params);
-		
+
 		return $sets;
 	}
-	
+
 	public function initImport($params) {
 
 		if (!$this->openFile($params)) {
 			$this->report("initImport: file was not loaded. Last Error: " . $this->lastError);
 			return false;
 		}
-		
+
+
+//		$this->load->test($params);
+
+
 		$this->session->data['ka_token'] = $this->session->data['user_token'];
-		
+
 		// clean up the temporary table
 		//
 		$this->db->query("DELETE FROM " . DB_PREFIX . "ka_product_import
-				WHERE 
+				WHERE
 					token = '" . $this->session->data['ka_token'] . "'
 					OR TIMESTAMPDIFF(HOUR, added_at, NOW()) > 168"
 		);
 
 		$params['delimiter'] = $this->getRealDelimiter($params['delimiter']);
-		
+
 		$this->params = $params;
 
 		if (isset($this->params['matches'])) {
@@ -918,7 +1131,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 			$this->params['images_dir'] = $this->params['images_dir'] . '/';
 		}
 
-		// store the relative path in 'incoming images' directory 
+		// store the relative path in 'incoming images' directory
 		// important: if incoming_images_dir exists then it should end with slash
 		//
 		$incoming_images_dir = '';
@@ -932,35 +1145,39 @@ class ModelImport extends \extension\ka_extensions\Model {
 
 		// prepare column data
 		//
-		$sets = $this->getFieldSets($this->params);
-		
+        if ($this->params['fileType'] == 'shopee') {
+            $sets = $this->getShopeeFieldSets($this->params);
+        } else {
+            $sets = $this->getFieldSets($this->params);
+        }
+
 		$this->copyMatchesToSets($sets, $params['matches'], $params['columns']);
-		
+
 		$columns_in_use = $this->prepareSetsForImport($sets, $params['columns'], $params['default_values']);
-		
+
 		$this->params['matches'] = $sets;
 
 		$this->params['status_for_new_products']      = $this->config->get('ka_product_import_status_for_new_products');
 		$this->params['status_for_existing_products'] = $this->config->get('ka_product_import_status_for_existing_products');
-		
+
 		$this->params['cfg_options_separator']       = $this->config->get('ka_product_import_options_separator');
 		$this->params['cfg_simple_option_separator'] = $this->config->get('ka_product_import_simple_option_separator');
-		
+
 		$this->params['parced_option_fields'] = array_flip(explode(';', $this->config->get('ka_product_import_simple_option_field_order')));
-		
+
 		$this->params['skip_img_download']            = $this->config->get('ka_product_import_skip_img_download');
 		$this->params['cfg_image_separator']        = stripcslashes($this->config->get('ka_product_import_image_separator'));
 
 		$this->params['cat_separator'] = $this->params['cat_separator'];
 		$this->params['multicat_sep']  = $this->config->get('ka_product_import_multicat_separator');
-		
+
 		$this->params['opt_create_options']       = $this->config->get('ka_product_import_create_options');
 		$this->params['opt_compare_as_is']        = $this->config->get('ka_product_import_compare_as_is');
 		$this->params['opt_generate_seo_keyword'] = $this->config->get('ka_product_import_generate_seo_keyword');
 		if (empty($this->params['cat_separator'])) {
 			$this->params['cat_separator'] = '///';
 		}
-		
+
 		$download_source_dir = '';
 		if (!empty($this->params['download_source_dir'])) {
 			$this->params['download_source_dir'] = $this->kaformat->strip($this->params['download_source_dir'], array("\\", "/"));
@@ -969,7 +1186,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 			}
 		}
 		$this->params['download_source_dir'] = $download_source_dir;
-		
+
 		// set a short language code to the paramters
 		// it will require for string converstion from national characters with KaUrlify::filter()
 		//
@@ -990,14 +1207,20 @@ class ModelImport extends \extension\ka_extensions\Model {
 		if (!empty($this->params['pr_import_group_id'])) {
 			$this->params['price_rule_columns'] = $this->kamodel_price_rule->getImportPriceRuleColumns($this->params['pr_import_group_id'], $params['columns']);
 		}
-		
+
+
+
+//		$this->load->test(filesize($params['file']), count($params['columns']), $params['columns']);
+
+
+
 		$this->stat = array(
 			'started_at' => time(),
 			'filesize'   => filesize($params['file']),
 			'offset'     => 0,
-			
+
 			'lines_processed'  => 0,
-			'products_created' => 0,			
+			'products_created' => 0,
 			'products_updated' => 0,
 			'products_deleted' => 0,
 			'products_hidden'     => 0,
@@ -1013,6 +1236,9 @@ class ModelImport extends \extension\ka_extensions\Model {
 
 		// define stages
 		$this->getStages();
+
+//        $this->load->test($this->stat);
+
 		$this->stat = array_merge($this->stat, array(
 			'completion_at'    => 0,
 			'stage_id'         => 0,
@@ -1020,17 +1246,19 @@ class ModelImport extends \extension\ka_extensions\Model {
 			'stage_completion' => 0,
 		));
 
+//        $this->load->test($this->stat);
+
 		$log_stat = $params;
 		unset($log_stat['matches']);
-		
+
 		$this->kalog->write("Import started. Parameters: " . var_export($log_stat, true));
 
 		return true;
 	}
 
-	
+
 	public function getStages() {
-	
+
 		$stages = array(
 			array(
 				'code'     => 'import',
@@ -1038,27 +1266,27 @@ class ModelImport extends \extension\ka_extensions\Model {
 				'function' => array($this, 'runStageImport'),
 			),
 		);
-		
+
 		$model_stages = $this->import_model->getStages();
 		if (!empty($model_stages)) {
 			$stages = array_merge($stages, $model_stages);
 		}
-		
+
 		$stages[] = array(
 			'code'  => 'finalization',
 			'title' => $this->language->get('Import Routine Finalization'),
 			'function' => array($this, 'runStageFinal'),
-		);		
-		
-		return $stages;	
+		);
+
+		return $stages;
 	}
-	
+
 
 	public function getImportMessages() {
 		return $this->messages;
 	}
 
-	
+
 	public function getImportStat() {
 	 	return $this->stat;
 	}
@@ -1068,10 +1296,10 @@ class ModelImport extends \extension\ka_extensions\Model {
 		This function is supposed to be called from an external object multiple times. But first you
 		will need to call initImport() to define import parameters.
 
-		Import status can be determined by 
+		Import status can be determined by
 			$this->stat['status']  - completed, in_progress, error, not_started
 			$this->stat['message'] - last import fatal error
-		
+
 		Import status can be checked by requesting getImportStat() function and verifying $status
 		parameter.
 	*/
@@ -1091,7 +1319,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 		// set timer
 		//
 		$this->started_at = time();
-		
+
 		$max_execution_time = @ini_get('max_execution_time');
 		if ($max_execution_time > 5 && $max_execution_time < $this->sec_per_cycle) {
 			$this->sec_per_cycle = $max_execution_time - 3;
@@ -1100,11 +1328,13 @@ class ModelImport extends \extension\ka_extensions\Model {
 		$stages   = $this->getStages();
 		$stage_id = $this->stat['stage_id'];
 		$stage    = $stages[$stage_id];
-		
+
 		$this->import_model->setParams($this->params);
-	
-		try {
-		
+
+//		$this->load->test(666, $this->stat, quit: false);
+
+//		try {
+
 			// while the function returns 'true' we assume it needs more time to run
 			//
 			// - these functions do not change the stage
@@ -1115,17 +1345,19 @@ class ModelImport extends \extension\ka_extensions\Model {
 				if (empty($stages[$stage_id])) {
 					$this->stat['stage_completion_at'] = 100;
 					$this->stat['status'] = 'completed';
-				} else { 
+				} else {
 					$this->stat['stage_completion_at'] = 0;
 					$this->stat['stage_id'] = $stage_id;
 				}
 			}
 
-		} catch (\Exception $e) {
-			$this->stat['status'] = 'error';
-			$this->addImportMessage('Import error:' . $e->getMessage(), 'E');
-		}
-		
+//        $this->load->test(77, $this->stat);
+
+//		} catch (\Exception $e) {
+//			$this->stat['status'] = 'error';
+//			$this->addImportMessage('Import error:' . $e->getMessage(), 'E');
+//		}
+
 		if (!defined('KA_DEBUG')) {
 			$this->config->set('error_display', $old_config_error_display);
 		}
@@ -1133,19 +1365,19 @@ class ModelImport extends \extension\ka_extensions\Model {
 		return;
 	}
 
-	
+
 	/*
 		function updates $this->stat array.
-		
+
 	*/
 	protected function runStageImport() {
-	
+
 		$this->load->model('tool/image');
-	
+
 		if (!empty($this->params['replacement_columns'])) {
 			$this->replacements = $this->kamodel_replacements->initReplacementsCache($this->params['ir_import_group_id'], $this->params['replacement_columns']);
 		}
-		
+
 		if (!empty($this->params['skip_rule_columns'])) {
 			$this->skip_rules = $this->kamodel_skip_rule->initSkipRulesCache($this->params['sr_import_group_id'], $this->params['skip_rule_columns']);
 		}
@@ -1166,8 +1398,18 @@ class ModelImport extends \extension\ka_extensions\Model {
 			}
 		} else {
 			$tmp = fgetcsv($this->file->handle, 0, $this->params['delimiter'], $this->enclosure, $this->escape);
+
+            if ($this->params['fileType'] == 'shopee') {
+                $tmp2 = fgetcsv($this->file2->handle, 0, $this->params['delimiter'], $this->enclosure, $this->escape);
+            }
+
 			$this->stat['lines_processed'] = 1;
-			if (is_null($tmp) || count($tmp) != $col_count) {
+            
+			if ($this->params['fileType'] == 'shopee') {
+			    if (is_null($tmp) || is_null($tmp2) || count(array_unique(array_merge($tmp,$tmp2), SORT_REGULAR)) != $col_count) {
+                    throw new \Exception("File header does not match the initial file header.");
+			    }
+			} elseif (is_null($tmp) || count($tmp) != $col_count) {
 				throw new \Exception("File header does not match the initial file header.");
 			}
 		}
@@ -1187,7 +1429,12 @@ class ModelImport extends \extension\ka_extensions\Model {
 			}
 
 			$row = $this->getNextRow();
-			if (is_null($row)) {
+
+            if ($this->params['fileType'] == 'shopee') {
+                $row2 = $this->getNextRow2();
+            }
+
+			if (is_null($row) || $row[0] == 'basic_info' || $row[0] == '商品ID') {
 				// probably the file is finished
 				break;
 			}
@@ -1212,16 +1459,28 @@ class ModelImport extends \extension\ka_extensions\Model {
 				}
 			}
 
-			$data = $this->getDataFromRow($row);
+            if ($this->params['fileType'] == 'shopee') {
+                $data = $this->getDataFromRowShopee($row, $row2);
+            } else {
+                $data = $this->getDataFromRow($row);
+            }
 
 			// set the price multiplier
 			//
 			$this->price_multiplier = $this->getPriceMultiplier($row);
-			
+
 			if (!empty($data['model'])) {
 				$this->entity_mark = $this->entity_mark . ' (model: ' . $data['model'] . ')';
 			}
-			
+
+            /**
+             * 
+             * 
+             * 從這裡開始準備進資料庫
+             * 
+             * 
+             */
+            
 			// get entity id
 			//
 			$result = $this->import_model->getEntityId($data);
@@ -1313,34 +1572,34 @@ class ModelImport extends \extension\ka_extensions\Model {
 			$this->stat['offset'] = ftell($this->file->handle);
 			$is_end = false;
 		}
-		
+
     	fclose($this->file->handle);
-    	
+
     	// return 'true' when we have not finished yet
     	if (!$is_end) {
     		return true;
     	}
-    	
+
    		// the stage is complete, the next stage can be started
 	    return false;
 	}
 
 
 	public function runStageFinal() {
-	
+
     	// rename the import file if required
     	//
     	if ($this->params['location'] == 'server' && !empty($this->params['rename_file'])) {
 	    	$path_parts = pathinfo($this->params['file']);
-    	
-	    	$dest_file  = $path_parts['dirname'] . DIRECTORY_SEPARATOR . $path_parts['filename'] 
-				. '.' . 'processed_at_' . date("Ymd-His") 
+
+	    	$dest_file  = $path_parts['dirname'] . DIRECTORY_SEPARATOR . $path_parts['filename']
+				. '.' . 'processed_at_' . date("Ymd-His")
 				. '.' . $path_parts['extension'];
 			if (!rename($this->params['file'], $dest_file)) {
 				$this->addImportMessage("rename operation failed. from " .$this->params['file'] . " to " . $dest_file);
 			}
 		}
-		
+
 		// clean up the temporary table
 		//
 		$this->db->query("DELETE FROM " . DB_PREFIX . "ka_product_import
@@ -1350,7 +1609,7 @@ class ModelImport extends \extension\ka_extensions\Model {
     	$this->kalog->write("Import completed. Parameters: " . var_export($this->stat, true));
 	}
 
-	
+
 	public function getCustomerGroupByName($customer_group) {
 
 		static $customer_groups;
@@ -1366,18 +1625,18 @@ class ModelImport extends \extension\ka_extensions\Model {
 				cgd.name = '$customer_group'"
 		);
 
-		
+
 		if (empty($qry->row)) {
 			$customer_groups[$customer_group] = 0;
 			return 0;
 		}
-		
+
 		$customer_groups[$customer_group] = $qry->row['customer_group_id'];
-						
+
 		return $qry->row['customer_group_id'];
 	}
-	
-	
+
+
  	public function report($msg) {
 
  		if (defined('KA_DEBUG')) {
@@ -1387,7 +1646,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 		$this->kalog->write($msg);
  	}
 
- 	
+
 	public function addImportMessage($msg, $type = 'W') {
 		static $too_many = false;
 
@@ -1415,7 +1674,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 		$this->messages[] = $msg;
 	}
 
-	
+
 	public function insertToStores($entity, $entity_id, $stores) {
 
 		$table = $entity . "_to_store";
@@ -1429,7 +1688,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 		 	$this->kadb->queryInsert($table, $rec, true);
 		}
 	}
-	
+
 
 	protected function removeFromStores($entity, $entity_id, $stores) {
 
@@ -1439,21 +1698,21 @@ class ModelImport extends \extension\ka_extensions\Model {
 		if (!is_array($stores)) {
 			$stores = array($stores);
 		}
-		
+
 		if (empty($stores)) {
 			return false;
 		}
 
 		foreach($stores as $sv) {
-			$this->db->query("DELETE FROM " . DB_PREFIX . $table . " WHERE 
+			$this->db->query("DELETE FROM " . DB_PREFIX . $table . " WHERE
 				$field = '" . intval($entity_id) . "' AND store_id = '" . intval($sv) . "'"
 			);
 		}
 
 		return true;
 	}
-	
-	
+
+
 	/*
 		Some urls may omit the protocol but we can detect them anyway
 	*/
@@ -1479,22 +1738,22 @@ class ModelImport extends \extension\ka_extensions\Model {
 	*/
 	public function getImageFile($image) {
 		$this->lastError = '';
-		
+
 		if (empty($image))
 			return false;
 
 		$image = trim($image);
-		
+
 		$is_google_file = false;
-		
+
 		$file = '';
 		if ($this->isUrl($image)) {
 
 			// experimental feature to download Google images
 			//
-			// replace drive images like this: 
+			// replace drive images like this:
 			//   https://drive.google.com/file/d/abcdefmrp6IpP2TQ7YKQd8hs8KhO5e3Aoh
-			// to urls like this: 
+			// to urls like this:
 			//   https://drive.google.com/u/0/uc?id=abcdefmrp6IpP2TQ7YKQd8hs8KhO5e3Aoh&export=download
 			//
 			if (strpos($image, 'drive.google.com/file/d/') !== false) {
@@ -1503,7 +1762,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 					$is_google_file = true;
 				}
 			}
-		
+
 			// parse the image URL
 			//
 		    $url_info = @$this->mb_parse_url($image);
@@ -1512,7 +1771,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 	    		$this->lastError = "Invalid URL data $url";
 	    		return false;
 			}
-			
+
 			if (empty($url_info['scheme'])) {
 				$url_info['scheme'] = 'http';
 			}
@@ -1521,14 +1780,14 @@ class ModelImport extends \extension\ka_extensions\Model {
 			//
 		    $fullname  = '';
 		    $images_dir = str_replace("\\", '/', $this->params['incoming_images_dir']);
-		    
+
 		    // if the path exists in the URL then parse it
 		    // to the 'path' and 'filename'
 		    //
 	    	if (!empty($url_info['path'])) {
-	    	
+
 	    		$url_info['path'] = urldecode($url_info['path']);
-	    		
+
 			    $path_info = pathinfo($url_info['path']);
 
 			    // create a directory path for the image
@@ -1544,7 +1803,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 						return false;
 					}
 
-		    		if (!file_exists($dirname)) {		    		
+		    		if (!file_exists($dirname)) {
 		    			try {
 		    				if (!mkdir($dirname, 0755, true)) {
 		    					throw new \Exception('mkdir failed');
@@ -1584,11 +1843,11 @@ class ModelImport extends \extension\ka_extensions\Model {
 				$this->lastError = "File path is too long. A file cannot be created.";
 				return false;
 			}
-					
+
 			// 2) download the file
 			//
 			$image = htmlspecialchars_decode($image);
-			
+
 		    $content = $this->kacurl->getFileContentsByUrl($image);
 	    	if (empty($content)) {
 		    	$this->lastError = "File content is empty for $image (" . $this->lastError . ")";
@@ -1617,7 +1876,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 	    	} catch (\Exception $e) {
 	    		$image_info = false;
 	    	}
-	    	
+
     		if (empty($image_info)) {
 				$this->lastError = "getimagesize returned empty info for the file: $image";
 				return false;
@@ -1626,7 +1885,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 			// 3) get a complete image file path
 			//
 			if (!empty($file_info['filename']) && $is_google_file) {
-			
+
 				$filename = $file_info['filename'];
 
 			} else if (!empty($url_info['query'])) {
@@ -1634,9 +1893,9 @@ class ModelImport extends \extension\ka_extensions\Model {
 				if (!empty($path_info['basename'])) {
 					$filename = $path_info['basename'];
 				}
-				
+
 				$query = $this->normalizeFilename($url_info['query']);
-				
+
 				$filename = $filename . $query;
 
 				// if a 'copy' parameter exceeds 256 characters, we have to generate a shorter filename
@@ -1644,9 +1903,9 @@ class ModelImport extends \extension\ka_extensions\Model {
 				if (strlen($filename) > $max_filename_length) {
 					$filename = uniqid('', true);
 				}
-				
+
 				$filename = $filename . image_type_to_extension($image_info[2]);
-				
+
 			} else {
 				$filename = $path_info['basename'];
 				if (empty($path_info['extension'])) {
@@ -1659,7 +1918,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 			if (is_file(DIR_IMAGE . $images_dir . $filename)) {
 				@unlink(DIR_IMAGE . $images_dir . $filename);
 			}
-			
+
 			if (!is_file(DIR_IMAGE . $images_dir . $filename)) {
 				if (!rename($tmp_file, DIR_IMAGE . $images_dir . $filename)) {
 					$this->lastError = "rename operation failed. from $tmp_file to " . DIR_IMAGE . $images_dir . $filename;
@@ -1673,9 +1932,9 @@ class ModelImport extends \extension\ka_extensions\Model {
 			}
 
 		   	$file = $images_dir . $filename;
-		   	
+
 		} else {
-			
+
 			//
 			// if the image is a regular file
 			//
@@ -1705,72 +1964,72 @@ class ModelImport extends \extension\ka_extensions\Model {
 				return $images;
 			}
 		}
-		
+
 		// try semicolon
 		//
 		if (stripos($str, ';') !== false) {
 			$images = explode(';', $str);
 			return $images;
 		}
-		
+
 		$images[] = $str;
-		
+
 		return $images;
 	}
 
-	
+
     /*
       parse_url() function for multi-bytes character encodings
-      
+
     */
     function mb_parse_url($url, $component = -1)
     {
     	$encodedUrl = preg_replace_callback('/[^$:\/@?&=#]+/usD', function ($matches) {
     		return urlencode($matches[0]);
     	}, $url);
-    	
+
     	$parts = parse_url($encodedUrl, $component);
-    	
+
     	if ($parts === false) {
     		throw new \InvalidArgumentException('Malformed URL: ' . $url);
     	}
-    	
+
     	if (is_array($parts) && count($parts) > 0) {
     		foreach ($parts as $name => $value) {
     			$parts[$name] = rawurldecode($value);
     		}
     	}
-    	
+
     	return $parts;
     }
 
-	
+
 	/*
 		The function tries to find the replacement when it is not available in cache.
-		
+
 		RETURN:
 			null  - when the replacement is not found
-			<val> - new column value 
+			<val> - new column value
 	*/
 	public function findReplacement($column_name, $column_value) {
-		
+
 		$qry = $this->db->query("SELECT * FROM " . DB_PREFIX . "ka_import_replacements WHERE
-			column_name = '" . $this->db->escape($column_name) . "' 
+			column_name = '" . $this->db->escape($column_name) . "'
 			AND old_value = '" . $this->db->escape($column_value) . "'
 			LIMIT 1
 		");
-			
+
 		if (empty($qry->rows)) {
 			return null;
 		}
 
 		array_shift($this->replacements[$column_name]['cache']);
 		$this->replacements[$column_name]['cache'][$qry->row['old_value']] = $qry->row['new_value'];
-		
+
 		return $qry->row['new_value'];
 	}
 
-	
+
 	protected function applyReplacements(&$row) {
 
 		$is_applied = false;
@@ -1785,21 +2044,21 @@ class ModelImport extends \extension\ka_extensions\Model {
 				}
 			}
 		}
-		
+
 		return $is_applied;
-	}	
-	
-	
+	}
+
+
 	protected function isRowSkipped($row) {
-/*				
+/*
 			$skip_rules =  array(
 				'column1' => array(
 					'column' => 1,
-					'values_cache' => 
+					'values_cache' =>
 						'val1' => ACTION
 						'val2' => action
-						
-					'rules' => 
+
+					'rules' =>
 						0 => array(
 							'pattern'
 							'rule_action'
@@ -1816,15 +2075,15 @@ class ModelImport extends \extension\ka_extensions\Model {
 		// 512 - max hash length stored in the cache
 		//
 		foreach ($this->skip_rules as $srk => $srv) {
-		
+
 			$val = $row[$srv['column']];
-			
+
 			// we specify here a "unique" value to get a key for a hash
 			//
 			if (strlen($val) == 0) {
 				$val = '!!!empty!!!';
 			}
-			
+
 			// we skip rules if there is an existing result in the column cache
 			//
 			if (!empty($val) && mb_strlen($val) < 512) {
@@ -1837,14 +2096,14 @@ class ModelImport extends \extension\ka_extensions\Model {
 					}
 				}
 			}
-			
+
 			// loop through rules to find if we have any rule matching the cell data
 			//
 			foreach ($srv['rules'] as $rule) {
 				$action = array();
 
 				if ($this->kamodel_skip_rule->isValueMatched($rule['pattern'], $val)) {
-				
+
 					if ($rule['rule_action'] == 'I') {
 						// exit both loops and continue line processing
 						if (!empty($val) && mb_strlen($val) < 512) {
@@ -1868,27 +2127,27 @@ class ModelImport extends \extension\ka_extensions\Model {
 				}
 			}
 		}
-		
-		return false;
-	}	
 
-	
+		return false;
+	}
+
+
 	protected function getPriceMultiplier($row) {
-	
+
 		$price_multiplier = $this->params['price_multiplier'];
-		
+
 		// update the price multiplier according to price rules if applicable
 		//
 		if (!empty($this->price_rules)) {
-		
+
 			foreach ($this->price_rules as $prk => $prv) {
-			
+
 				$val = $row[$prv['column']];
 				// we specify here a "unique" value to get a key for a hash
 				if (strlen($val) == 0) {
 					$val = '!!!empty!!!';
 				}
-		
+
 				// we skip rules if there is an existing result in the column cache
 				//
 				if (!empty($val) && mb_strlen($val) < 512) {
@@ -1897,7 +2156,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 						$this->stat['price_rules_applied']++;
 						break;
 					}
-				}				
+				}
 
 				// loop through rules to find if we have any rule matching the cell data
 				//
@@ -1918,11 +2177,66 @@ class ModelImport extends \extension\ka_extensions\Model {
 				}
 			}
 		}
-		
+
 		return $price_multiplier;
 	}
-	
-	
+
+    protected function getDataFromRowShopee($row, $row2) {
+
+        $data = array();
+        
+        foreach ($this->params['matches']['fields'] as $fk => $fv) {
+            if (!isset($fv['column']) && !isset($fv['default_value']))
+                continue;
+
+            if (isset($fv['column']) && is_array($fv['column'])) {
+                $data[$fv['field']] = array();
+
+                foreach ($fv['column'] as $ck => $column_index) {
+                    if (empty($row[$column_index])) {
+                        continue;
+                    }
+                    $data[$fv['field']][$ck] = trim($row[$column_index]);
+                }
+            } elseif (isset($fv['column'])) {
+                // add prefix to key fields
+                if (!empty($this->params['key_field_prefix'])) {
+                    if (in_array($fv['field'], $this->key_fields)) {
+                        $row[$fv['column']] = $this->params['key_field_prefix'] . $row[$fv['column']];
+                    }
+                }
+                
+                $data[$fv['field']] = trim($row[$fv['column']]);
+
+                if (empty($data[$fv['field']])) {
+//                    if (!empty($row[0])) {
+//                        $this->load->test(55, $row, quit: false);
+//                        $this->load->test(33, $fv, $data, $fv['field']);
+//                    }
+                    
+                    
+                    $data[$fv['field']] = trim($row2[$fv['column']]);
+                }
+
+                // set a default value for empty cells only
+                // we assume that the column is not specified for set_default_for = 'A'
+                //
+                if (isset($fv['default_value'])) {
+                    if (empty($data[$fv['field']])) {
+                        $data[$fv['field']] = $fv['default_value'];
+                    }
+                }
+            } else {
+                // set a default value for all rows in the column (when the column is not specified)
+                //
+                $data[$fv['field']] = $fv['default_value'];
+            }
+        }
+
+        return $data;
+    }
+
+
 	protected function getDataFromRow($row) {
 	
 		$data = array();
@@ -1948,7 +2262,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 					}
 				}
 				$data[$fv['field']] = trim($row[$fv['column']]);
-			
+
 				// set a default value for empty cells only
 				// we assume that the column is not specified for set_default_for = 'A'
 				//
@@ -1963,11 +2277,11 @@ class ModelImport extends \extension\ka_extensions\Model {
 				$data[$fv['field']] = $fv['default_value'];
 			}
 		}
-		
+
 		return $data;
 	}
-	
-	
+
+
 	public function registerRecord($product_id, $type, $id) {
 		$rec = array(
 			'product_id' => $product_id,
@@ -1977,26 +2291,26 @@ class ModelImport extends \extension\ka_extensions\Model {
 		);
 		$this->kadb->queryInsert('ka_import_records', $rec, true);
 	}
-	
+
 	public function isRecordRegistered($product_id, $type) {
-	
+
 		$result = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "ka_import_records WHERE
 			product_id = '" . (int)$product_id . "'
 			AND record_type = '" . $type . "'
 			AND token = '" . $this->session->data['ka_token'] . "'
 		")->row;
-		
+
 		if (empty($result['total'])) {
 			return false;
 		}
-		
-		return true;		
+
+		return true;
 	}
-	
+
 
 	/*
 		Return row or null if the file is over
-		it may 
+		it may
 	*/
 	protected function getNextRow() {
 
@@ -2007,11 +2321,11 @@ class ModelImport extends \extension\ka_extensions\Model {
 		if (empty($row)) {
 			return array();
 		}
-		
+
 		$col_count = $this->stat['col_count'];
-		
+
 		$row = $this->request->clean($row);
-		
+
 		// compare number of read values against the number of columns in the header
 		//
 		$row_count = count($row);
@@ -2025,31 +2339,70 @@ class ModelImport extends \extension\ka_extensions\Model {
 			//
 			$tail = array_fill($row_count, $col_count - $row_count, '');
 			$row = array_merge($row, $tail);
-			
+
 		} elseif ($row_count > $col_count) {
 			$row = array_slice($row, 0, $col_count);
 		}
 
 		return $row;
 	}
-	
-	
+
+    /*
+        Return row or null if the file is over
+        it may
+    */
+    protected function getNextRow2() {
+
+        if (!($row2 = fgetcsv($this->file2->handle, 0, $this->params['delimiter'], $this->enclosure, $this->escape))) {
+            return null;
+        }
+
+        if (empty($row2)) {
+            return array();
+        }
+
+        $col_count = $this->stat['col_count'];
+
+        $row2 = $this->request->clean($row2);
+
+        // compare number of read values against the number of columns in the header
+        //
+        $row2_count = count($row2);
+        if ($row2_count < $col_count) {
+            if ($row2_count == 1) {
+                return array();
+            }
+
+            // extend the line with empty values. MS Excel may 'optimize' a CSV file and remove
+            // trailing empty cells
+            //
+            $tail = array_fill($row2_count, $col_count - $row2_count, '');
+            $row2 = array_merge($row2, $tail);
+
+        } elseif ($row2_count > $col_count) {
+            $row2 = array_slice($row2, 0, $col_count);
+        }
+
+        return $row2;
+    }
+
+
 	public function unclean($text) {
-	
+
 		$text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
-		
+
 		return $text;
 	}
-	
-	
+
+
 	public function isTimeout() {
-	
-		if (time() - $this->started_at > $this->sec_per_cycle) {	
+
+		if (time() - $this->started_at > $this->sec_per_cycle) {
 			return true;
 		}
-		
+
 		return false;
-		
+
 	}
-	
+
 }

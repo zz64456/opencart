@@ -1,7 +1,7 @@
-{# 
+{#
  $Project: CSV Product Import $
  $Author: karapuz team <support@ka-station.com> $
- $Version: 6.0.0.2 $ ($Revision: 572 $) 
+ $Version: 6.0.0.2 $ ($Revision: 572 $)
 #}
 
 {% extends '@ka_common/pages/page.twig' %}
@@ -50,9 +50,9 @@
 					
 				<ul class="nav nav-tabs">
 					<li class="nav-item"><a href="#tab-general" class="nav-link active" data-bs-toggle="tab">{{ t('General') }}</a></li>
-					<li class="nav-item"><a href="#tab-advanced" class="nav-link" data-bs-toggle="tab">{{ t('Advanced') }}</a></li>
-					<li class="nav-item"><a href="#tab-downloads" class="nav-link" data-bs-toggle="tab">{{ t('Downloads') }}</a></li>
-					<li class="nav-item"><a href="#tab-extra" class="nav-link" data-bs-toggle="tab">{{ t('Extra') }}</a></li>
+{#					<li class="nav-item"><a href="#tab-advanced" class="nav-link" data-bs-toggle="tab">{{ t('Advanced') }}</a></li>#}
+{#					<li class="nav-item"><a href="#tab-downloads" class="nav-link" data-bs-toggle="tab">{{ t('Downloads') }}</a></li>#}
+{#					<li class="nav-item"><a href="#tab-extra" class="nav-link" data-bs-toggle="tab">{{ t('Extra') }}</a></li>#}
 					{{ include (dir(_self) ~ 'step1/nav_custom.twig', ignore_missing = true) }}
 				</ul>
 				
@@ -78,74 +78,90 @@
 		{% endblock %}
 	{% endembed %}
 
-<script type="text/javascript"><!--
+<script type="text/javascript">
 
 var ka_step1 = new function() {
 
 	this.refreshLocation = () => {
 	
 		var id = $('[name=location]:checked').val();
-		
+
 	  if (id == 'server') {
-	    $('#local_location').hide();
-	    $('#server_location').fadeIn(500);
+		$('#local_location').hide();
+		$('#server_location').fadeIn(500);
 	  } else if (id == 'local') {
-	    $('#server_location').hide();
-	    $('#local_location').fadeIn(500);
+		$('#server_location').hide();
+		$('#local_location').fadeIn(500);
+	  	$('#local_location2').fadeIn(500);
 	  }
-	}	
+	}
 
 	this.activateLocation = (id) => {
 		this.refreshLocation();
 	}
 
+  this.refreshFileType = () => {
+
+	var id = $('[name=fileType]:checked').val();
+
+	if (id == 'shopee') {
+	  $('#local_location2').fadeIn(500);
+	} else if (id == 'kamod') {
+	  $('#local_location2').hide();
+	}
+  }
+
+  this.activateFileType = (id) => {
+	this.refreshFileType();
+  }
+
 	this.refreshDelimiter = () => {
 		var id = $('#delimiter_option').val();
-	
+
 	  if (id == 'predefined') {
-	    $('#custom_delimiter_row').hide();
-	    $('#predefined_delimiter_row').show();
-	    $('#delimiter_option').val('predefined');
+		$('#custom_delimiter_row').hide();
+		$('#predefined_delimiter_row').show();
+		$('#delimiter_option').val('predefined');
 
 	  } else if (id == 'custom') {
-	    $('#predefined_delimiter_row').hide();
-	    $('#custom_delimiter_row').show();
-	    $('#delimiter_option').val('custom');
+		$('#predefined_delimiter_row').hide();
+		$('#custom_delimiter_row').show();
+		$('#delimiter_option').val('custom');
 	  }
 	}
-	
+
 	this.activateDelimiter = (id) => {
-	
+
 	  if (id == 'predefined') {
-	    $('#delimiter_option').val('predefined');
+		$('#delimiter_option').val('predefined');
 
 	  } else if (id == 'custom') {
-	    $('#delimiter_option').val('custom');
+		$('#delimiter_option').val('custom');
 	  }
-	
+
 		this.refreshDelimiter();
 	}
 
 	this.refreshCharset = () => {
-	
+
 		var id = $('#charset_option').val();
-	
+
 	  if (id == 'predefined') {
-	    $('#custom_charset_row').hide();
-	    $('#predefined_charset_row').show();
+		$('#custom_charset_row').hide();
+		$('#predefined_charset_row').show();
 	  } else if (id == 'custom') {
-	    $('#predefined_charset_row').hide();
-	    $('#custom_charset_row').show();
+		$('#predefined_charset_row').hide();
+		$('#custom_charset_row').show();
 	  }
-	}	
-	
+	}
+
 	this.activateCharset = (id) => {
-	
+
 	  if (id == 'predefined') {
-	    $('#charset_option').val('predefined');
+		$('#charset_option').val('predefined');
 
 	  } else if (id == 'custom') {
-	    $('#charset_option').val('custom');
+		$('#charset_option').val('custom');
 	  }
 
 		this.refreshCharset();
@@ -166,16 +182,17 @@ var ka_step1 = new function() {
 			$('#predefined_charset_row .l-select-wrapper').addClass('l-checked');
 		}
 	}
-	
+
 	this.resetFile = () => {
 
 		$('#file_uploaded').hide();
 		$('#file_uploaded > input').prop('disabled', true);
-		
+
 		$('#file_upload').show();
+		$('#file_upload2').show();
 	}
-	
-	
+
+
 	this.loadProfile = () => {
 	  $("#form-step1 input[name='mode']").prop('value', 'load_profile');
 	  $("#form-step1").submit();
@@ -189,11 +206,11 @@ var ka_step1 = new function() {
 
 	this.clearTplProduct = () => {
 
-	    $("input[name='tpl_product']").prop('value', '').removeAttr('disabled');
-	    $("input[name='tpl_product_id']").prop('value', '');
-	    $("#view_tpl_product").removeProp('href');
+		$("input[name='tpl_product']").prop('value', '').removeAttr('disabled');
+		$("input[name='tpl_product_id']").prop('value', '');
+		$("#view_tpl_product").removeProp('href');
 	}
-	
+
 	var max_server_file_size = {{ max_server_file_size }};
 
 	this.inputFileHandler = (evt) => {
@@ -205,9 +222,9 @@ var ka_step1 = new function() {
 
 		this.resetMark('delimiter');
 		this.resetMark('charset');
-		
+
 		if (files[0].size > max_server_file_size) {
-			ka_extensions.showMessage('{{ t('The file size exceeds limit...') }}', 
+			ka_extensions.showMessage('{{ t('The file size exceeds limit...') }}',
 				'E'
 			);
 		}
@@ -216,7 +233,7 @@ var ka_step1 = new function() {
 		if (xls_pattern.test(files[0].name)) {
 			ka_extensions.showMessage('{{ t('Be careful. The file has xm...') }}', 'E');
 		}
-			
+
 		var xls_pattern = new RegExp("\.[xls|xlsx]$", "i");
 		if (xls_pattern.test(files[0].name)) {
 			ka_extensions.showMessage('{{ t('Be careful. The file has MS...') }}', 'E');
@@ -226,58 +243,58 @@ var ka_step1 = new function() {
 		if (xls_pattern.test(files[0].name)) {
 			ka_extensions.showMessage('{{ t('Be careful. The file has an...') }}', 'E');
 		}
-		
+
 		var blob = files[0].slice(0, 1024 * 4);
 		var reader = new FileReader();
 		reader.onloadend  = this.onBlobLoadEnd;
 		reader.readAsDataURL(blob);
-	}	
+	}
 
-	
+
 	this.onBlobLoadEnd = (evt) => {
 
 		if (evt.target.readyState != FileReader.DONE) {
 			return;
 		}
-		
+
 		var file_data = evt.target.result;
 		
 	  $.ajax({
-	    url: 'index.php?route=extension/ka_product_import/import|examineFileData&user_token={{ user_token }}',
-	    type: 'POST',
-	    dataType: 'json',
-	    data: 'file_data=' + encodeURIComponent(file_data.match(/,(.*)$/)[1]),
+		url: 'index.php?route=extension/ka_product_import/import|examineFileData&user_token={{ user_token }}',
+		type: 'POST',
+		dataType: 'json',
+		data: 'file_data=' + encodeURIComponent(file_data.match(/,(.*)$/)[1]),
 			beforeSend: function() {
 			},
 			complete: function() {
 			},
-	    success: function(data) {
-	    
-	    	if (data.error) {
-	    		ka_extensions.showMessage(data.error, 'E');
-	    		return;
-	    	}
-	    	
-	    	if (data.delimiter) {
-	    		$('select[name="delimiter"] option[value="' + data['delimiter'] + '"]').prop('selected', true);
-	    		
-	    		if ($('#delimiter_option').val() == 'predefined') {
-	    			ka_step1.showMark('delimiter');
+		success: function(data) {
+
+			if (data.error) {
+				ka_extensions.showMessage(data.error, 'E');
+				return;
+			}
+
+			if (data.delimiter) {
+				$('select[name="delimiter"] option[value="' + data['delimiter'] + '"]').prop('selected', true);
+
+				if ($('#delimiter_option').val() == 'predefined') {
+					ka_step1.showMark('delimiter');
 					}
-	    	}
-	    	
-	    	if (data.charset) {
-		    	$('select[name="charset"] option[value="' + data['charset'] + '"]').prop('selected', true);
-		    	
-		    	if ($('#charset_option').val() == 'predefined') {
-		    		ka_step1.showMark('charset');
+			}
+
+			if (data.charset) {
+				$('select[name="charset"] option[value="' + data['charset'] + '"]').prop('selected', true);
+
+				if ($('#charset_option').val() == 'predefined') {
+					ka_step1.showMark('charset');
 					}
-	    	}
-	    }
-	        
+			}
+		}
+
 	  });
 	}
-	
+
 }
 
 
@@ -286,33 +303,33 @@ $(document).ready(function() {
 	ka_step1.refreshLocation();
 	ka_step1.refreshDelimiter();
 	ka_step1.refreshCharset();
-		
+
 	// enable autocompletion for template product search
 	//
 	$('input[name=\'tpl_product\']').autocomplete({
 	  source: function(request, response) {
-	    $.ajax({
-	      url: 'index.php?route=extension/ka_product_import/import|completeTpl&user_token={{ user_token }}',
-	      type: 'POST',
-	      dataType: 'json',
-	      data: 'filter_name=' + encodeURIComponent(request),
-	      success: function(data) {
-	        response($.map(data, function(item) {
-	          return {
-	            label: item.name,
-	            value: item.product_id
-	          }
-	        }));
-	      }
-	    });
+		$.ajax({
+		  url: 'index.php?route=extension/ka_product_import/import|completeTpl&user_token={{ user_token }}',
+		  type: 'POST',
+		  dataType: 'json',
+		  data: 'filter_name=' + encodeURIComponent(request),
+		  success: function(data) {
+			response($.map(data, function(item) {
+			  return {
+				label: item.name,
+				value: item.product_id
+			  }
+			}));
+		  }
+		});
 	  },
 	  select: function(item) {
 
-	    $("input[name='tpl_product']").prop('value', item.label).prop('disabled', 'disabled');
-	    $("input[name='tpl_product_id']").prop('value', item.value);
-	    $("#view_tpl_product").prop('href', '{{ product_url }}' + '&product_id=' + item.value);
+		$("input[name='tpl_product']").prop('value', item.label).prop('disabled', 'disabled');
+		$("input[name='tpl_product_id']").prop('value', item.value);
+		$("#view_tpl_product").prop('href', '{{ product_url }}' + '&product_id=' + item.value);
 
-	    return false;
+		return false;
 	  }
 	});
 
@@ -320,8 +337,9 @@ $(document).ready(function() {
 	//
 	if (window.File && window.FileReader && window.FileList && window.Blob) {
 		$('#input_file').on('change', ka_step1.inputFileHandler);
+		$('#input_file2').on('change', ka_step1.inputFileHandler);
 	}
-	
+
 });
 
 //--></script>

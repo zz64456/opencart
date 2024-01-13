@@ -1,7 +1,7 @@
-{# 
+{#
  $Project: CSV Product Import $
  $Author: karapuz team <support@ka-station.com> $
- $Version: 6.0.0.2 $ ($Revision: 572 $) 
+ $Version: 6.0.0.2 $ ($Revision: 572 $)
 #}
 {% extends '@ka_common/pages/page.twig' %}
 
@@ -9,28 +9,28 @@
 
 {% block page_buttons %}
 	{{ macros.button_submit(action_next, 'form-step2', t('Next'), 'fa-play') }}
-{% endblock %}        
+{% endblock %}
 
 {% block page_contents %}
 
 <style type="text/css">
 
 	div.table-section {
-		padding-bottom:5px; 
-		padding-top: 20px; 
-		font-weight: bold; 
-		font-size: 14px; 
-		color: #f38733; 
+		padding-bottom:5px;
+		padding-top: 20px;
+		font-weight: bold;
+		font-size: 14px;
+		color: #f38733;
 		border-bottom: 1px solid #f38733;
 	}
 
 	td.option-section {
-		font-weight: bold; 
-		font-size: 14px; 
-	}		
+		font-weight: bold;
+		font-size: 14px;
+	}
 
 	#simple-options-list > :not(:last-child) > :last-child > * {
-    border-bottom-color: #aaa;	
+    border-bottom-color: #aaa;
 	}
 
 	#simple-options-list .option-section .l-type {
@@ -38,17 +38,17 @@
     font-size: 80%;
     margin-left: 20px;
 	}
-    	
+
 </style>
 
 	{% embed '@ka_common/card.twig' with {'header': heading_title, icon:'fa-list'} %}
 		{% block contents %}
-			
+
 			{% set _default_options %}
 				{% include dir(_self) ~ 'step2/options.twig' with { val: ''} %}
 			{% endset %}
-		
-			{% if (not hide_backup_warning) %} 
+
+			{% if (not hide_backup_warning) %}
 				{% embed '@ka_common/alert.twig' with {id: "backup_warning", type:'W'} %}
 					{% block contents %}
 						{{ t('strongCautionstrong I...')|replace({"%backup_link%": backup_link}) }}
@@ -64,8 +64,8 @@
 
 			<form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-step2">
 				<input type="hidden" name="mode" value="" />
-				
-				<hr>				
+
+				<hr>
 				<div class="row">
 					<label class="col-md-3 col-form-label">
 						<span data-bs-toggle="popover" data-bs-content="{{ t('Profiles can store import p...') }}">{{ t('Profile') }}</span>
@@ -81,24 +81,24 @@
 
 				{% embed '@ka_common/well.twig' %}
 					{% block contents %}
-						{{ t('File size') }}: {{ filesize }}				
+						{{ t('File size') }}: {{ filesize }}
 					{% endblock %}
 				{% endembed %}
 
 				<ul class="nav nav-tabs">
 					<li><a href="#tab-general" class="nav-link active" data-bs-toggle="tab">{{ t('General') }}</a></li>
-					<li><a href="#tab-attributes" class="nav-link" data-bs-toggle="tab">{{ t('Attributes') }}</a></li>
-					<li><a href="#tab-filters" class="nav-link" data-bs-toggle="tab">{{ t('Filters') }}</a></li>
-					<li><a href="#tab-options" class="nav-link" data-bs-toggle="tab">{{ t('Options') }}</a></li>
-					{% if (matches.discounts) %}<li><a href="#tab-discounts" class="nav-link" data-bs-toggle="tab">{{ t('Discounts') }}</a></li>{% endif %}
-					{% if (matches.specials) %}<li><a href="#tab-specials" class="nav-link" data-bs-toggle="tab">{{ t('Specials') }}</a></li>{% endif %}
-					{% if (matches.reward_points) %}<li><a href="#tab-reward_points" class="nav-link" data-bs-toggle="tab">{{ t('Reward Points') }}</a></li>{% endif %}
-					{% if (matches.subscriptions) %}<li><a href="#tab-subscriptions" class="nav-link" data-bs-toggle="tab">{{ t('Subscriptions') }}</a></li>{% endif %}
-					{% if (matches.reviews) %}<li><a href="#tab-reviews" class="nav-link" data-bs-toggle="tab">{{ t('Reviews') }}</a></li>{% endif %}
-					{% if (variants_enabled) %}<li><a href="#tab-variants" class="nav-link" data-bs-toggle="tab">{{ t('Variants') }}</a></li>{% endif %} 
-					{{ include (dir(_self) ~ 'step2/nav_custom.twig', ignore_missing = true) }}					
+{#					<li><a href="#tab-attributes" class="nav-link" data-bs-toggle="tab">{{ t('Attributes') }}</a></li>#}
+{#					<li><a href="#tab-filters" class="nav-link" data-bs-toggle="tab">{{ t('Filters') }}</a></li>#}
+{#					<li><a href="#tab-options" class="nav-link" data-bs-toggle="tab">{{ t('Options') }}</a></li>#}
+{#					{% if (matches.discounts) %}<li><a href="#tab-discounts" class="nav-link" data-bs-toggle="tab">{{ t('Discounts') }}</a></li>{% endif %}#}
+{#					{% if (matches.specials) %}<li><a href="#tab-specials" class="nav-link" data-bs-toggle="tab">{{ t('Specials') }}</a></li>{% endif %}#}
+{#					{% if (matches.reward_points) %}<li><a href="#tab-reward_points" class="nav-link" data-bs-toggle="tab">{{ t('Reward Points') }}</a></li>{% endif %}#}
+{#					{% if (matches.subscriptions) %}<li><a href="#tab-subscriptions" class="nav-link" data-bs-toggle="tab">{{ t('Subscriptions') }}</a></li>{% endif %}#}
+{#					{% if (matches.reviews) %}<li><a href="#tab-reviews" class="nav-link" data-bs-toggle="tab">{{ t('Reviews') }}</a></li>{% endif %}#}
+{#					{% if (variants_enabled) %}<li><a href="#tab-variants" class="nav-link" data-bs-toggle="tab">{{ t('Variants') }}</a></li>{% endif %} #}
+					{{ include (dir(_self) ~ 'step2/nav_custom.twig', ignore_missing = true) }}
 				</ul>
-				
+
 				<div class="tab-content">
 
 					<div class="tab-pane active" id="tab-general">
@@ -108,7 +108,7 @@
 					<div class="tab-pane" id="tab-attributes">
 						{% include dir(_self) ~ 'step2/tab_attributes.twig' %}
 					</div>
-					
+
 					<div class="tab-pane" id="tab-filters">
 						{% include dir(_self) ~ 'step2/tab_filters.twig' %}
 					</div>
@@ -116,19 +116,19 @@
 					<div class="tab-pane" id="tab-options">
 						{% include dir(_self) ~ 'step2/tab_options.twig' %}
 					</div>
-					
+
 					<div class="tab-pane" id="tab-discounts">
 						{% include dir(_self) ~ 'step2/tab_discounts.twig' %}
 					</div>
-							
+
 					<div class="tab-pane" id="tab-specials">
 						{% include dir(_self) ~ 'step2/tab_specials.twig' %}
 					</div>
-							
+
 					<div class="tab-pane" id="tab-reward_points">
 						{% include dir(_self) ~ 'step2/tab_reward_points.twig' %}
 					</div>
-						
+
 					<div class="tab-pane" id="tab-subscriptions">
 						{% include dir(_self) ~ 'step2/tab_subscriptions.twig' %}
 					</div>
@@ -136,8 +136,8 @@
 					<div class="tab-pane" id="tab-reviews">
 						{% include dir(_self) ~ 'step2/tab_reviews.twig' %}
 					</div>
-					{{ include (dir(_self) ~ 'step2/tab_custom.twig', ignore_missing = true) }}					
-				
+					{{ include (dir(_self) ~ 'step2/tab_custom.twig', ignore_missing = true) }}
+
 				</div>
 			</form>
 
@@ -148,19 +148,19 @@ var ka_step2 = new function() {
 	row_indexes = [];
 
 	this.cloneField = (field) => {
-		
+
 		var sample_row = $('#id_' + field).clone();
-	
+
 		var array_index = 1;
 		if (row_indexes[field]) {
 			array_index = row_indexes[field] + 1;
 		}
 		row_indexes[field] = array_index;
-		
+
 	  // hide 'add' button and show 'delete' button for extra rows
 	  sample_row.find("[class*='btn-primary']").css('display', 'none');
 	  sample_row.find("[class*='btn-danger']").css('display', '');
-		
+
 		sample_row.prop('id', 'id_' + field + '#' + array_index);
 
 		sample_row.insertAfter('#id_' + field);
@@ -171,7 +171,7 @@ var ka_step2 = new function() {
 	  $("#form-step2 input[name='mode']").prop('value', 'save_profile');
 	  $("#form-step2").submit();
 	}
-	
+
 	this.loadSimpleOptions = () => {
 
 		$('#simple-options-list *').prop('disabled', true);
@@ -185,27 +185,27 @@ var ka_step2 = new function() {
 				}
 			});
 	}
-	
-	
+
+
 	this.onClickOptionLine = (id) => {
 
 		id = '#' + id;
 
 		var is_hidden = ($(id).css('display') == 'none');
-		
-		if (is_hidden) { 
+
+		if (is_hidden) {
 			// show
 			$(id).addClass("show");
 			$(id).find('select,checkbox,input').prop('disabled', false).removeAttr('disabled');
-			
-		} else { 
+
+		} else {
 			// hide
 			$(id).removeClass("show");
 			$(id).find('select,checkbox,input').prop('disabled', true).attr('disabled', 'disabled');
 		}
 	}
-	
-	
+
+
 }
 
 $(document).ready(function() {
@@ -217,7 +217,7 @@ $(document).ready(function() {
 			data: 'warning_closed=' + encodeURIComponent('1'),
 			dataType: 'json'
 		});
-	})	
+	})
 });
 
 //--></script>

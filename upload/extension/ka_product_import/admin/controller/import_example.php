@@ -2,13 +2,13 @@
 /*
  $Project: CSV Product Import $
  $Author: karapuz team <support@ka-station.com> $
- $Version: 6.0.0.2 $ ($Revision: 581 $)
+ $Version: 6.0.0.2 $ ($Revision: 581 $) 
 */
 namespace extension\ka_product_import;
 
 use \extension\ka_extensions\KaGlobal;
 
-class ControllerImport extends \extension\ka_extensions\ControllerForm {
+class ControllerImport extends \extension\ka_extensions\ControllerForm { 
 
 	protected $tmp_dir;
 	protected $store_root_dir;
@@ -16,8 +16,6 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 	protected $kaformat = null;
 
 	public $params;
-	
-	public $fileType = 'kamod';
 
 	protected static $max_visible_options  = 100;
 	protected static $max_expanded_options = 30;
@@ -31,7 +29,7 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 	protected function getFields() {
 		return array();
 	}
-
+	
 	protected function getPageUrlParams() {
 		return array();
 	}
@@ -58,15 +56,7 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 		
 		$this->kamodel_import_product  = $this->load->kamodel('extension/ka_product_import/import/product');
 
-        /**
-         * 
-         * 超級重要 ！！！！！！！！！！！！！！
-         * 
-         * 在此強制設定 走 shopee
-         * 
-         */
-//        $this->kamodel_import->setImportModel($this->kamodel_import_product);
-		$this->kamodel_import->setImportModel($this->kamodel_import_product, 'shopee');
+		$this->kamodel_import->setImportModel($this->kamodel_import_product);
 				
 		$this->data['heading_title']    = $this->language->get('txt_form_page_title');
 
@@ -85,7 +75,7 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 		$this->load->language('extension/ka_product_import/step1');
 
 		$this->load->model('catalog/product');
-
+		
 		// do we need to re-install the extension?
 		//
 		if (!$this->kamodel_import->isDBPrepared()) {
@@ -96,11 +86,11 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 
 		// stop any existing imports
 		$this->kamodel_import->resetStat();
-
+		
 		// set import parameters
 		//
 		$this->params = $this->getImportParameters();
-
+		
 		// get import profiles
 		//
 		$profiles = $this->kamodel_import_profiles->getProfiles();
@@ -113,48 +103,36 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 		// process the form submission
 		//
 		if ($this->request->server['REQUEST_METHOD'] == 'POST') {
-            
-            /**
-             * 先設定上傳目的
-             * 更新 import model
-             */
-			$this->fileType = $this->request->post['fileType'];
-			$this->params['fileType'] = $this->request->post['fileType'];
 
-			if ($this->request->post['fileType'] == 'shopee') {
-
-
-			} elseif ($this->request->post['fileType'] == 'kamod') {
-				if (!isset($this->request->post['images_dir'])) {
-					$this->addTopMessage($this->language->get("Wrong post parameters. Plea..."), 'E');
-					$this->session->data['save_params'] = true;
-					return $this->response->redirect($this->url->linka('extension/ka_product_import/import'));
-				}
-
-				// check the 'incoming images' directory
-				//
-				$incoming_images_dir = $this->store_images_dir . '/' . $this->request->post['incoming_images_dir'];
-				if (!is_dir($incoming_images_dir)) {
-					mkdir($incoming_images_dir, 0775, true);
-				}
-				if (!is_dir($incoming_images_dir)) {
-					$this->addTopMessage($this->language->get("The Incoming images direc..."), 'E');
-					$this->session->data['save_params'] = true;
-					return $this->response->redirect($this->url->linka('extension/ka_product_import/import'));
-				}
+			if (!isset($this->request->post['images_dir'])) {
+				$this->addTopMessage($this->language->get("Wrong post parameters. Plea..."), 'E');
+				$this->session->data['save_params'] = true;
+			 	return $this->response->redirect($this->url->linka('extension/ka_product_import/import'));
+			}
+			
+			// check the 'incoming images' directory
+			//
+			$incoming_images_dir = $this->store_images_dir . '/' . $this->request->post['incoming_images_dir'];
+			if (!is_dir($incoming_images_dir)) {
+				mkdir($incoming_images_dir, 0775, true);
+			}
+			if (!is_dir($incoming_images_dir)) {
+				$this->addTopMessage($this->language->get("The Incoming images direc..."), 'E');
+				$this->session->data['save_params'] = true;
+			 	return $this->response->redirect($this->url->linka('extension/ka_product_import/import'));
 			}
 
 			// process profile submission
 			//
 			$msg = '';
 			if ($this->request->post['mode'] == 'load_profile') {
-
+			
 				$this->session->data['save_params'] = true;
 				$this->params = array_merge($this->params, $this->kamodel_import_profiles->getProfileParams($this->request->post['profile_id']));
-
+				
 				if (!empty($this->params) && !empty($this->request->post['profile_id'])) {
 					$this->params['profile_id'] = $this->request->post['profile_id'];
-
+					
 					if ($this->params['location'] == 'local') {
 						$this->params['file_name'] = '';
 						$this->params['file'] = '';
@@ -164,36 +142,36 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 				} else {
 					$this->addTopMessage($this->language->get("Profile was not loaded"), 'E');
 				}
-
+				
 				return $this->response->redirect($this->url->linka('extension/ka_product_import/import'));
-
+				
 			} elseif ($this->request->post['mode'] == 'delete_profile') {
-
+			
 				$this->kamodel_import_profiles->deleteProfile($this->request->post['profile_id']);
 				$this->session->data['save_params'] = true;
 				$this->addTopMessage($this->language->get("Profile has been deleted su..."));
-
+				
 				return $this->response->redirect($this->url->linka('extension/ka_product_import/import'));
 			}
-
+		
 			// save submitted parameters
 			//
 			$this->params['images_dir']          = $this->request->post['images_dir'];
 			$this->params['incoming_images_dir'] = $this->request->post['incoming_images_dir'];
 			$this->params['location']            = $this->request->post['location'];
-			$this->params['cat_separator']       = $this->request->post['cat_separator'];
-			$this->params['update_mode']         = $this->request->post['update_mode'];
+			$this->params['cat_separator']       = $this->request->post['cat_separator']; 
+			$this->params['update_mode']         = $this->request->post['update_mode']; 
 			$this->params['price_multiplier']    = doubleval(str_replace(',', '.', $this->request->post['price_multiplier']));
 			$this->params['rename_file']         = (!empty($this->request->post['rename_file'])) ? true:false;
 
 			// delimiter
 			$this->params['delimiter_option'] = $this->request->post['delimiter_option'];
 			if ($this->params['delimiter_option'] == 'predefined') {
-				$this->params['delimiter'] = $this->request->post['delimiter'];
+				$this->params['delimiter'] = $this->request->post['delimiter']; 
 			} else {
-				$this->params['delimiter'] = trim($this->request->post['custom_delimiter']);
+				$this->params['delimiter'] = trim($this->request->post['custom_delimiter']); 
 			}
-
+			
 			// charset
 			$this->params['charset_option'] = $this->request->post['charset_option'];
 			if ($this->params['charset_option'] == 'predefined') {
@@ -208,7 +186,7 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 			} else {
 				$this->params['store_ids'] = array(0);
 			}
-
+			
 			$this->params['disable_not_imported_products'] = (isset($this->request->post['disable_not_imported_products'])) ? true : false;
 			$this->params['add_to_each_category']          = (isset($this->request->post['add_to_each_category'])) ? true : false;
 			$this->params['skip_new_products']    = (isset($this->request->post['skip_new_products'])) ? true : false;
@@ -242,29 +220,16 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 				}
 
 			} else {
-
+			
 				if (!empty($this->request->post['is_file_uploaded'])) {
-
+				
 					if (!file_exists($this->params['file'])) {
 						$this->params['file'] = '';
 						$this->params['file_name'] = '';
-
-						if ($this->request->post['fileType'] == 'shopee') {
-							$this->params['file2'] = '';
-							$this->params['file_name2'] = '';
-						}
 					}
-
-				} elseif (
-					!empty($this->request->files['file'])
-					&& is_uploaded_file($this->request->files['file']['tmp_name'])
-					|| (
-						$this->request->post['fileType'] == 'shopee'
-						&& !empty($this->request->files['file2'])
-						&& is_uploaded_file($this->request->files['file2']['tmp_name'])
-					)
-				) {
-
+				
+				} elseif (!empty($this->request->files['file']) && is_uploaded_file($this->request->files['file']['tmp_name'])) {
+				
 					$filename = $this->request->files['file']['name'] . '.' . md5(rand());
 					if (move_uploaded_file($this->request->files['file']['tmp_name'], $this->tmp_dir . $filename)) {
 					  $this->params['file']      = $this->tmp_dir . $filename;
@@ -272,23 +237,13 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 					} else {
 						$msg = $msg . str_replace('{dest_dir}', $this->tmp_dir, $this->language->get('error_cannot_move_file'));
 					}
-
-					if ($this->request->post['fileType'] == 'shopee') {
-						$filename2 = $this->request->files['file2']['name'] . '.' . md5(rand());
-						if (move_uploaded_file($this->request->files['file2']['tmp_name'], $this->tmp_dir . $filename2)) {
-							$this->params['file2']      = $this->tmp_dir . $filename2;
-							$this->params['file_name2'] = $this->request->files['file2']['name'];
-						} else {
-							$msg = $msg . str_replace('{dest_dir}', $this->tmp_dir, $this->language->get('error_cannot_move_file2'));
-						}
-					}
 				}
-
+				
 				if (empty($this->params['file'])) {
 					$msg = $msg . $this->language->get('error_file_not_found');
 			 	}
 		 	}
-
+		 	
 			if (!empty($this->request->post['tpl_product_id'])) {
 				$product = $this->model_catalog_product->getProduct($this->request->post['tpl_product_id']);
 				if (empty($product)) {
@@ -302,14 +257,10 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 
 		 	if (empty($msg)) {
 				$params = $this->params;
-
+				
 				if ($this->kamodel_import->openFile($params)) {
-					if ($this->request->post['fileType'] == 'shopee') {
-						$this->params['columns'] = $this->kamodel_import->readColumns($params['delimiter'], $this->request->post['fileType']);
-					} elseif ($this->request->post['fileType'] == 'kamod') {
-						$this->params['columns'] = $this->kamodel_import->readColumns($params['delimiter']);
-					}
-                    
+					$this->params['columns'] = $this->kamodel_import->readColumns($params['delimiter']);
+
 					// remove columns with an empty name from the columns list
 					$columns = array_diff($this->params['columns'], array(""));
 					
@@ -356,22 +307,22 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 		} else {
 			$this->data['categories'] = array();
 		}
-
+		
 		$this->data['charsets']   = $this->kamodel_import->getCharsets();
 		$this->data['delimiters'] = $this->kamodel_import->getDelimiters();
 		$this->data['import_groups'] = $import_groups;
-
+		
 		// check the file compatibility
 		//
 		if (!empty($this->params['file']) && file_exists($this->params['file']) && is_file($this->params['file'])) {
-
+		
 			$file_data = file_get_contents($this->params['file'], false, NULL, 0, 1024 * 8);
 			$results = $this->kamodel_import->examineFileData($file_data);
-
+		
 			if ($results['charset'] == $this->params['charset']) {
 				$this->data['charset_is_ok'] = true;
 			}
-
+			
 			if ($results['delimiter'] == $this->params['delimiter']) {
 				$this->data['delimiter_is_ok'] = true;
 			}
@@ -384,29 +335,29 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 				$this->data['tpl_product'] = $product;
 			}
 		}
-
+		
 		// get languages
 		//
 		$this->load->model('localisation/language');
 		$this->data['languages'] = $this->model_localisation_language->getLanguages();
-
+		
 		$this->data['action_next'] = $this->url->linka('extension/ka_product_import/import');
 		$this->data['backup_link'] = $this->url->linka('tool/backup');
-
+		
 		// pass parameters to the template
 		$this->data['params']    = $this->params;
-
+		
 		$key_fields = $this->kamodel_import_product->getKeyFields();
 		$this->data['key_fields'] = implode(", ", $key_fields);
-
+		
 		$this->data['max_server_file_size'] = $this->kamodel_import->getUploadMaxFilesize();
 		$this->data['max_file_size']        = $this->kaformat->convertToMegabyte($this->kamodel_import->getUploadMaxFilesize());
 
 		$this->data['product_url']  = $this->url->linka('catalog/product|form');
 		$this->data['settings_url'] = $this->url->linka('extension/ka_product_import/extension');
-
+		
 		$this->document->setTitle($this->language->get('txt_form_page_title') . ': ' . $this->language->get('STEP 1 of 3'));
-
+		
 		$this->showPage('extension/ka_product_import/step1');
 	}
 
@@ -417,49 +368,49 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 	public function saveWarning() {
 		$this->session->data['hide_backup_warning'] = true;
 	}
-
+	
 	/*
 		ajax call to return a list of products matching the passed filter
 	*/
 	public function completeTpl() {
 		$json = array();
-
+		
 		if (isset($this->request->post['filter_name'])) {
 			$this->load->model('catalog/product');
-
+			
 			$data = array(
 				'filter_name' => $this->request->post['filter_name'],
 				'start'       => 0,
 				'limit'       => 20
 			);
-
+			
 			$results = $this->model_catalog_product->getProducts($data);
-
+			
 			foreach ($results as $result) {
 				$option_data = array();
-
+				
 				$json[] = array(
 					'product_id' => $result['product_id'],
-					'name'       => html_entity_decode($result['name'], ENT_QUOTES, 'UTF-8'),
+					'name'       => html_entity_decode($result['name'], ENT_QUOTES, 'UTF-8'),	
 					'model'      => $result['model'],
 					'price'      => $result['price']
-				);
+				);	
 			}
 		}
-
+		
 		$this->response->setOutput(json_encode($json));
 	}
-
-
+	
+	
 	/*
 		PARAMETERS:
 			file - string of 1-10Kb data with file data.
-
+			
 		RETURNS:
 			charset   - empty or string with charset code (value from the select box)
 			delimiter - empty or value from the select box
 			error     - string. If error is not empty then show the error text to the user
-
+			
 	*/
 	public function examineFileData() {
 		$json = array();
@@ -468,14 +419,14 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 
 			$file_data = base64_decode($this->request->post['file_data']);
 			$file_data = substr($file_data, 0, 1024);
-
+		
 			$data = $this->kamodel_import->examineFileData($file_data);
-
+		
 			if (!empty($data['error'])) {
 				$json = array(
 					'error' => $data['error'],
 				);
-
+				
 			} else {
 				$json = array(
 					'charset'   => html_entity_decode($data['charset'], ENT_QUOTES, 'UTF-8'),
@@ -502,14 +453,7 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 		$this->load->language('extension/ka_product_import/step2');
 		
 		$this->params['step'] = 2;
-        
-        /**
-         * 先設定上傳目的
-         * 更新 import model
-         */
-		$this->fileType = $this->params['fileType'];
 
-        // columns 這裡指的是 上傳檔案內的所有欄位
 		// check if we have full file information
 		if (empty($this->params['columns'])) {
 			$this->addTopMessage($this->language->get("Do not open the extension p..."), "E");
@@ -526,11 +470,7 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 		//
 		if (($this->request->server['REQUEST_METHOD'] == 'POST')) {
 
-            if ($this->fileType == 'shopee') {
-                $sets = $this->kamodel_import->getShopeeFieldSets($this->params);
-            } else {
-                $sets = $this->kamodel_import->getFieldSets($this->params);
-            }
+			$sets = $this->kamodel_import->getFieldSets($this->params);
 			
 			$this->params['matches'] = $this->kamodel_import->getMatchesByPositions($sets, $this->params['columns'], $this->request->post);
 
@@ -576,18 +516,10 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 			$this->data['is_def_fields_enabled'] = true;
 		}
 
-        /**
-         * kamod 設定 $sets 為檔案上傳的欄位
-         * 若要改為蝦皮檔案欄位，需在此修改
-         */
 		// get fields in sets
 		//
-		if ($this->fileType == 'shopee') {
-            $sets = $this->kamodel_import_product->getShopeeFieldSets($this->params);
-		} else {
-            $sets = $this->kamodel_import_product->getFieldSets($this->params);
-		}
-        
+		$sets = $this->kamodel_import_product->getFieldSets($this->params);
+
 		if (!empty($sets['options']) && count($sets['options']) > static::$max_visible_options) {
 			if (empty($this->params['matches']['options'])) {
 				$this->data['total_options_not_loaded'] = count($sets['options']);
@@ -603,16 +535,8 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 		// $columns - list of columns in the file
 		//
 		if (empty($this->params['matches'])) {
-            /**
-             * 這裡指派預設欄位
-             * 例如 model -> model
-             */
 			// do finding only once on step2 load
-			if ($this->fileType == 'shopee') {
-                $this->params['matches'] = $this->kamodel_import->getShopeeMatchesByColumnNames($sets, $this->data['columns']);
-			} else {
-                $this->params['matches'] = $this->kamodel_import->getMatchesByColumnNames($sets, $this->data['columns']);
-			}
+			$this->params['matches'] = $this->kamodel_import->getMatchesByColumnNames($sets, $this->data['columns']);
 		}
 
 		$this->kamodel_import->copyMatchesToSets($sets, $this->params['matches'], $this->data['columns']);
@@ -631,26 +555,26 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
     	$this->data['action']             = $this->url->linka('extension/ka_product_import/import|step2');
 		$this->data['back_action']        = $this->url->linka('extension/ka_product_import/import');
 		$this->data['params']             = $this->params;
-
+		
 		$profile = array();
 		if ($this->params['profile_id']) {
 			$profile = $this->kamodel_import_profiles->getProfile($this->params['profile_id']);
 		}
 		$this->data['profile'] = $profile;
-
+		
 		$this->data['filesize']           = $this->kaformat->convertToMegabyte(filesize($this->params['file']));
 		$this->data['backup_link']        = $this->url->linka('tool/backup');
-
+				
 		if (!empty($this->session->data['hide_backup_warning'])) {
 			$this->data['hide_backup_warning'] = true;
 		}
-
+		
 		$this->document->setTitle($this->language->get('txt_form_page_title') . ': ' . $this->language->get('STEP 1 of 3'));
-
+		
 		$this->showPage('extension/ka_product_import/step2');
 	}
 
-
+	
 	public function step3() { // step3
 
 		$this->load->language('extension/ka_product_import/step3');
@@ -676,7 +600,7 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 		// format=raw&tmpl=component - these parameters are used for compatibility with Mojoshop
 		//
  		$this->data['page_url'] = str_replace('&amp;', '&', $this->url->linka('extension/ka_product_import/import|stat', 'format=raw&tmpl=component&user_token=' . $this->session->data['user_token'], true));
-
+		
 		$this->document->setTitle($this->language->get('txt_form_page_title') . ': ' . $this->language->get('STEP 3 of 3'));
 		$this->showPage('extension/ka_product_import/step3');
 	}
@@ -703,12 +627,12 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 		$stat['time_passed']   = $this->kaformat->formatPassedTime(time() - $stat['started_at']);
 
 		$stat['completion_at'] = sprintf("%.2f%%", $stat['stage_completion_at']);
-
+		
 		$stages             = $this->kamodel_import->getStages();
 		$stage              = $stages[$stat['stage_id']];
 		$stat['stage_info'] = $stage['title'] . ' (' . sprintf($this->language->get('%d of %d'), $stat['stage_id']+1, count($stages)) . ')';
 		$stat['stage']      = $stage;
-
+	
  		$this->response->setOutput(json_encode($stat));
 	}
 
@@ -724,7 +648,7 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 		//
 		$this->data['columns'] = $this->params['columns'];
 		array_unshift($this->data['columns'], '');
-		$this->data['columns'] = array_unique($this->data['columns']);
+		$this->data['columns'] = array_unique($this->data['columns']);		
 
 		// get all fields
 		//
@@ -739,12 +663,7 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 		}
 
 		if (empty($this->params['profile_id'])) {
-            // do finding only once on step2 load
-            if ($this->fileType == 'shopee') {
-                $this->params['matches'] = $this->kamodel_import->getShopeeMatchesByColumnNames($sets, $this->data['columns']);
-            } else {
-                $this->params['matches'] = $this->kamodel_import->getMatchesByColumnNames($sets, $this->data['columns']);
-            }
+			$this->kamodel_import->getMatchesByColumnNames($sets, $this->data['columns']);
 		}
 		
 		$this->data['matches'] = $sets;
@@ -763,22 +682,22 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 		Get import parameters
 	*/
 	protected function getImportParameters() {
-
+	
 		if (empty($this->params) || ($this->request->server['REQUEST_METHOD'] == 'GET' && empty($this->session->data['save_params']))) {
 			$params = $this->kamodel_import->getDefaultImportParams();
 	 	} else {
 	 		$params = $this->params;
 	 	}
-
+	 	
 		$params['iconv_exists']       = function_exists('iconv');
 		$params['filter_exists']      = in_array('convert.iconv.*', stream_get_filters());
 		$params['image_urls_allowed'] = false;
-
+		
 		if (ini_get('allow_url_fopen') || function_exists('curl_version')) {
 			$params['image_urls_allowed'] = true;
 		}
 	 	
 	 	return $params;
 	}
-
+	
 }

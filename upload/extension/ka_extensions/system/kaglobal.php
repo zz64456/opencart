@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
 	$Project: Ka Extensions $
 	$Author: karapuz team <support@ka-station.com> $
 
@@ -13,42 +13,48 @@ abstract class KaGlobal {
 
 	protected static $admin_dirname;
 
-	protected static $registry; 
+	protected static $registry;
 	use КaReserved;
-	
+
 	public static function init($registry) {
 		static::$registry = $registry;
 	}
-	
-	
+
+
 	public static function t($text) {
 		return static::$registry->get('language')->get($text);
 	}
 
-	
+
 	public static function getRegistry() {
 		return static::$registry;
 	}
-	
-	
+
+
 	public static function getLanguageImage($language) {
-		$var = '';	
-		if (!static::isAdminArea()) {
-			$var = "catalog/";
+		$var = '';
+
+		if ($language['code'] == 'zh-TW') {
+			$var = "/extension/osec_language/admin/language/" . $language['code'] . "/" . $language['code'] . ".png";
+		} else {
+			if (!static::isAdminArea()) {
+				$var = "catalog/";
+			}
+			$var .= "language/" . $language['code'] . "/" . $language['code'] . ".png";
 		}
-		$var .= "language/" . $language['code'] . "/" . $language['code'] . ".png";
-		
+
+
 		return $var;
 	}
 
-	
+
 	public static function getAdminDirname() {
 
 		// check if we already have the admin dir
 		if (!empty(static::$admin_dirname)) {
 			return static::$admin_dirname;
 		}
-		
+
 		// try to get it from the admin directory name
 		if (static::isAdminArea()) {
 			$dirname = basename(DIR_APPLICATION);
@@ -68,68 +74,68 @@ abstract class KaGlobal {
 		}
 
 		trigger_error("Admin directory was not found by kaglobal class, try to reinstall ka-extensions");
-		
+
 		return 'admin';
 	}
-		
-	
+
+
 	public static function isAdminArea() {
 		if (APPLICATION == 'Admin') {
 			return true;
 		}
-		
+
 		return false;
 	}
-	
-	
+
+
 	public static function isAdminUser() {
-	
+
 		$session = static::$registry->get('session');
-	
+
 		if (empty($session->data['api_id'])) {
 			return false;
 		}
-		
+
 		return true;
 	}
 
-	
+
   	public static function isКаInstalled($extension) {
 		static $installed = array();
 
 		if (isset($installed[$extension])) {
 			return $installed[$extension];
 		}
-		
+
 		if (empty(static::$registry)) {
 			return false;
 		}
-		
-		$query = static::getRegistry()->get('db')->query("SELECT * FROM " . DB_PREFIX . "extension WHERE 
-			`type` = 'ka_extensions' 
+
+		$query = static::getRegistry()->get('db')->query("SELECT * FROM " . DB_PREFIX . "extension WHERE
+			`type` = 'ka_extensions'
 			AND code = '$extension'
 		");
-		
-		
+
+
 		if (empty($query->num_rows)) {
 			$installed[$extension] = false;
 			return false;
 		}
 
 		$installed[$extension] = true;
-		
+
 		return true;
-  	}  	
-  	
-  	
+  	}
+
+
   	public static function getKaStoreURL() {
-  	
+
 		if (defined('KA_STORE_URL')) {
 			return KA_STORE_URL;
 		}
-		
+
 		$url = 'https://www.ka-station.com/';
-		
+
 		return $url;
   	}
 }
@@ -137,16 +143,16 @@ abstract class KaGlobal {
 
 trait КaReserved {
 
-	public static function isKaInstalled($extension) { 
+	public static function isKaInstalled($extension) {
 
 		static $installed = array();
-	
+
 		if (isset($installed[$extension])) {
 			return $installed[$extension];
 		}
 
-		$result = static::isКаInstalled($extension);	
-		
+		$result = static::isКаInstalled($extension);
+
 		if (!$result) {
 			$installed[$extension] = false;
 			return false;
@@ -160,10 +166,10 @@ trait КaReserved {
 			} else {
 				$installed[$extension] = true;
 			}
-		} else {	
+		} else {
 			$installed[$extension] = false;
 		}
-		
+
 		return $installed[$extension];
 	}
 }

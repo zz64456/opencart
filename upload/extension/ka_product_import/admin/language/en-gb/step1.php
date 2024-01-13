@@ -12,8 +12,11 @@ $_['Profiles can store import p...'] = 'Profiles can store import parameters to 
 $_['Profile']                        = 'Import Profile';
 $_['no profiles present']            = 'no profiles present';
 $_['bLocal computerb - y...']        = '<b>\'Local computer\'</b> - you upload a file from your computer.<br /><br /><b>\'Server\'</b> - file location is on the server where the site is installed. The file on the server should be resided within the store directory.';
+$_['bShopeeb - ...']                 = '<b>\'Shopee\'</b> - you upload a shopee file to add products.<br /><br /><b>\'Kamod\'</b> - you upload an official-organized file to add products.';
 $_['File Location']                  = 'File Location';
 $_['Local computer']                 = 'Local computer';
+$_['Shopee']                         = 'Shopee';
+$_['Kamod']                          = 'Kamod';
 $_['Server']                         = 'Server';
 $_['A csv file is widely used d...'] = 'Please select your csv file here. You can download a sample file at <a href=&quot;https://www.ka-station.com/samples/oc3/csv_product_import/demo_products_utf8.csv&quot;>this url</a>';
 $_['File']                           = 'File';

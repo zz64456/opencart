@@ -4,157 +4,196 @@
     $Version: 6.0.0.2 $ ($Revision: 572 $)
 #}
 
-						{# file location #}
-						
-						{% embed dir(_self) ~ 'field.twig' with { 
-							field_class: 'pt-2',
-							title: t('File Location'),
-							tooltip: t('bLocal computerb - y...')
-						} %}
-							{% block field_value %}
-								<div class="form-check form-check-inline">
-									<input class="form-check-input" type="radio" id="input-location-local" name="location" value="local" onclick="javascript: ka_step1.activateLocation('local');" {% if (params['location'] == 'local') %} checked="checked" {% endif %} />
-									<label class="form-check-label" for="input-location-local"> {{ t('Local computer') }}</label>
-								</div>
-									<div class="form-check form-check-inline">
-									<input class="form-check-input" type="radio" id="input-location-server" name="location" value="server" onclick="javascript: ka_step1.activateLocation('server');" {% if (params['location'] == 'server') %} checked="checked" {% endif %} />
-									<label class="form-check-label" for="input-location-server">{{ t('Server') }}</label>
-								</div>
-							{% endblock %}
-						{% endembed %}
+						            {# file type #}
 
-						{# file upload #}
-						
-						{% embed dir(_self) ~ 'field.twig' with { 
-							id: 'local_location',
-							style: 'display:none;',
-							title: t('File'),
-							tooltip: t('A csv file is widely used d...')
-						} %}
-							{% block field_value %}
-								{% if (params['file_name']) %} 
-									<div id="file_uploaded">
-										<input type="hidden" name="is_file_uploaded" value="Y" />
-										{{ params['file_name'] }} 
-										<button type="button" onclick="javascript: resetFile();">{{ t('Clear') }}</button>
-									</div>
-								{% endif %} 
-								<div id="file_upload" {% if (params['file_name']) %} style="display:none" {% endif %}>
-									<input id="input_file" type="file" class="form-control" style="width: 300px;" name="file" />
-									<span class="form-text">{{ t('Max. file size (server limit)') }}: {{ max_file_size }}</span>
-								</div>
-							{% endblock %}
-						{% endembed %}
-						
-						{# file server #}
-						
-						{% embed dir(_self) ~ 'field.twig' with { 
-							id: 'server_location',
-							style: 'display: none;',
-							title: t('File path')
-						} %}
-							{% block field_value %}
-								<div class="input-group">
-								 	<span class="input-group-text">									
-										{{ store_root_dir ~ constant('DIRECTORY_SEPARATOR') }}
-									</span>
-									<input class="form-control" type="text" name="file_path" size="50" value="{{ params['file_path'] }}" />
-								</div>
-								<br />
-								<input type="checkbox" name="rename_file" value="Y" {% if (params['rename_file']) %} checked="checked" {% endif %} />
-								{{ t('Rename the file after succe...') }}
-							{% endblock %}
-						{% endembed %}
+            {% embed dir(_self) ~ 'field.twig' with {
+				field_class: 'pt-2',
+				title: t('File Type'),
+				tooltip: t('bShopeeb - ...')
+			} %}
+				{% block field_value %}
+					<div class="form-check form-check-inline">
+						<input checked class="form-check-input" type="radio" id="input-fileType-shopee" name="fileType" value="shopee" onclick="javascript: ka_step1.activateFileType('shopee');" {% if (params['fileType'] == 'Shopee') %} checked="checked" {% endif %} />
+						<label class="form-check-label" for="input-fileType-shopee"> {{ t('Shopee') }}</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" id="input-fileType-kamod" name="fileType" value="kamod" onclick="javascript: ka_step1.activateFileType('kamod');" {% if (params['fileType'] == 'Kamod') %} checked="checked" {% endif %} />
+						<label class="form-check-label" for="input-fileType-kamod"> {{ t('Kamod') }}</label>
+					</div>
+				{% endblock %}
+			{% endembed %}
 
-						{# delimiter option #}
-						
-						{% embed dir(_self) ~ 'field.twig' with { 
-							title: t('Field Delimiter')
-						} %}
-							{% block field_value %}
-								<input type="hidden" id="delimiter_option" name="delimiter_option" value="{{ params['delimiter_option'] }}" />
-								
-								<div id="predefined_delimiter_row" {% if (params['delimiter_option'] != 'predefined') %} style="display:none" {% endif %}>
-									<div class="l-select-wrapper {% if (delimiter_is_ok) %}l-checked{% endif %}">
-									  <select name="delimiter" id="delimiter" class="form-select {% if (delimiter_is_ok) %}checkmark_valid{% endif %}" 
-									  	onchange="javascript: ka_step1.resetMark('delimiter');" style="width:300px;"
-									  >
-											{% for dk,delimiter in delimiters %}
-												<option value="{{ dk }}" {% if dk == params['delimiter'] %} selected="selected" {% endif %}>{{ delimiter }}</option>
-											{% endfor %}
-									  </select>
-								  </div>
-									<a class="d-block mt-2" href="javascript: void(0);" onclick="javascript: ka_step1.activateDelimiter('custom');">{{ t('define manually') }}</a>
-								</div>
+            {# file location #}
 
-								<div id="custom_delimiter_row" {% if (params['delimiter_option'] == 'predefined') %} style="display:none" {% endif %}>
-									<input type="text" class="form-control " style="width: 290px" 
-									id="custom_delimiter" name="custom_delimiter" value="{{ params['delimiter'] }}" />
-									<a class="d-block mt-2" href="javascript: void(0);" onclick="javascript: ka_step1.activateDelimiter('predefined');">{{ t('select from predefined values') }}</a>
-								</div>
-							{% endblock %}
-						{% endembed %}
-						
-						{% embed dir(_self) ~ 'field.twig' with { 
-							title: t('File Charset'),
-							tooltip: t('You have to be aware of the...')
-						} %}
-							{% block field_value %}
-								<input type="hidden" id="charset_option" name="charset_option" value="{{ params['charset_option'] }}" />
-								<div id="predefined_charset_row" {% if (params['charset_option'] != 'predefined') %} style="display:none" {% endif %}>
-									<div class="l-select-wrapper {% if (delimiter_is_ok) %}l-checked{% endif %}">
-									  <select name="charset" id="charset" class="form-select" 
-									  	onchange="javascript: ka_step1.resetMark('charset');" style="width:300px;" {% if (charset_is_ok) %} mark_valid {% endif %}>
-										{% for key, charset in charsets %}
-											<option value="{{ key }}" {% if key == params['charset'] %} selected="selected" {% endif %}>{{ charset }}</option>
-										{% endfor %}
-									  </select>												
-									</div>
-									<a class="d-block mt-2" href="javascript: void(0);" onclick="javascript: ka_step1.activateCharset('custom');">{{ t('define manually') }}</a>
-								</div>
-								<div id="custom_charset_row" {% if (params['charset_option'] == 'predefined') %} style="display:none" {% endif %}>
-									<input type="text" class="form-control" style="width: 290px" id="custom_charset" name="custom_charset" value="{{ params['charset'] }}" />
-									<a class="d-block mt-2" href="javascript: void(0);" onclick="javascript: ka_step1.activateCharset('predefined');">{{ t('select from predefined values') }}</a>
-								</div>
-							{% endblock %}
-						{% endembed %}
-						
-						{% embed dir(_self) ~ 'field.twig' with { 
-							title: t('Import Mode'),
-							tooltip: t('The mode affects only data ...')
-						} %}
-							{% block field_value %}
-								<select name="update_mode" style="width: 300px" class="form-select">			
-									<option {% if (params['update_mode'] == 'add') %} selected="selected" {% endif %} value="add">{{ t('Add new records (safe)') }}</option>
-									<option {% if (params['update_mode'] == 'replace') %} selected="selected" {% endif %} value="replace">{{ t('Replace old records') }}</option>
-								</select>
-							{% endblock %}
-						{% endembed %}
-						
-						{# store #}
-							
-						{% if (stores|length > 1) %} 
-							{% embed dir(_self) ~ 'field.twig' with { 
-								title: t('Store')
-							} %}
-								{% block field_value %}
-										<select name="store_ids[]" multiple="multiple" size="5" style="width: 300px" class="form-select">
-											{% for store in stores %} 
-												<option value="{{ store.store_id }}" {% if store.store_id in params['store_ids'] %} selected="selected" {% endif %}>{{ store.name }}</option>
-											{% endfor %} 
-										</select>
-								{% endblock %}
-							{% endembed %}
+            {% embed dir(_self) ~ 'field.twig' with {
+				field_class: 'pt-2',
+				title: t('File Location'),
+				tooltip: t('bLocal computerb - y...')
+			} %}
+				{% block field_value %}
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" id="input-location-local" name="location" value="local" onclick="javascript: ka_step1.activateLocation('local');" {% if (params['location'] == 'local') %} checked="checked" {% endif %} />
+						<label class="form-check-label" for="input-location-local"> {{ t('Local computer') }}</label>
+					</div>
+					{#                <div class="form-check form-check-inline">#}
+					{#                    <input class="form-check-input" type="radio" id="input-location-server" name="location" value="server" onclick="javascript: ka_step1.activateLocation('server');" {% if (params['location'] == 'server') %} checked="checked" {% endif %} />#}
+					{#                    <label class="form-check-label" for="input-location-server">{{ t('Server') }}</label>#}
+					{#                </div>#}
+				{% endblock %}
+			{% endembed %}
 
-						{% else %}
-							{% embed dir(_self) ~ 'field.twig' with { 
-								field_class: 'pt-2',
-								title: t('Store')
-							} %}
-								{% block field_value %}
-										{% set store = stores|first %} {{ store['name'] }} 
-										<input type="hidden" name="store_id" value="{{ store['store_id'] }}" />
-								{% endblock %}
-							{% endembed %}
-						{% endif %}
-						
+            {# file upload #}
+
+            {% embed dir(_self) ~ 'field.twig' with {
+				id: 'local_location',
+				style: 'display:none;',
+				title: t('Shopee basic_info csv file'),
+				tooltip: t('A csv file is widely used d...')
+			} %}
+				{% block field_value %}
+					{% if (params['file_name']) %}
+						<div id="file_uploaded">
+							<input type="hidden" name="is_file_uploaded" value="Y" />
+							{{ params['file_name'] }}
+							<button type="button" onclick="javascript: resetFile();">{{ t('Clear') }}</button>
+						</div>
+					{% endif %}
+					<div id="file_upload" {% if (params['file_name']) %} style="display:none" {% endif %}>
+						<input id="input_file" type="file" class="form-control" style="width: 300px;" name="file" />
+						<span class="form-text">{{ t('Max. file size (server limit)') }}: {{ max_file_size }}</span>
+					</div>
+				{% endblock %}
+			{% endembed %}
+
+            {% embed dir(_self) ~ 'field.twig' with {
+				id: 'local_location2',
+				style: 'display:none;',
+				title: t('Shopee sales_info csv file'),
+				tooltip: t('A csv file is widely used d...')
+			} %}
+				{% block field_value %}
+					{% if (params['file_name2']) %}
+						<div id="file_uploaded2">
+							<input type="hidden" name="is_file_uploaded2" value="Y" />
+							{{ params['file_name2'] }}
+							<button type="button" onclick="javascript: resetFile();">{{ t('Clear') }}</button>
+						</div>
+					{% endif %}
+					<div id="file_upload2" {% if (params['file_name2']) %} style="display:none" {% endif %}>
+						<input id="input_file2" type="file" class="form-control" style="width: 300px;" name="file2" />
+						<span class="form-text">{{ t('Max. file size (server limit)') }}: {{ max_file_size }}</span>
+					</div>
+				{% endblock %}
+			{% endembed %}
+
+            {# file server #}
+
+{#            {% embed dir(_self) ~ 'field.twig' with { #}
+{#                id: 'server_location',#}
+{#                style: 'display: none;',#}
+{#                title: t('File path')#}
+{#            } %}#}
+{#                {% block field_value %}#}
+{#                    <div class="input-group">#}
+{#                        <span class="input-group-text">                                    #}
+{#                            {{ store_root_dir ~ constant('DIRECTORY_SEPARATOR') }}#}
+{#                        </span>#}
+{#                        <input class="form-control" type="text" name="file_path" size="50" value="{{ params['file_path'] }}" />#}
+{#                    </div>#}
+{#                    <br />#}
+{#                    <input type="checkbox" name="rename_file" value="Y" {% if (params['rename_file']) %} checked="checked" {% endif %} />#}
+{#                    {{ t('Rename the file after succe...') }}#}
+{#                {% endblock %}#}
+{#            {% endembed %}#}
+
+            {# delimiter option #}
+
+            {% embed dir(_self) ~ 'field.twig' with {
+				title: t('Field Delimiter')
+			} %}
+				{% block field_value %}
+					<input type="hidden" id="delimiter_option" name="delimiter_option" value="{{ params['delimiter_option'] }}" />
+
+					<div id="predefined_delimiter_row" {% if (params['delimiter_option'] != 'predefined') %} style="display:none" {% endif %}>
+						<div class="l-select-wrapper {% if (delimiter_is_ok) %}l-checked{% endif %}">
+							<select name="delimiter" id="delimiter" class="form-select {% if (delimiter_is_ok) %}checkmark_valid{% endif %}"
+									onchange="javascript: ka_step1.resetMark('delimiter');" style="width:300px;"
+							>
+								{% for dk,delimiter in delimiters %}
+									<option value="{{ dk }}" {% if dk == params['delimiter'] %} selected="selected" {% endif %}>{{ delimiter }}</option>
+								{% endfor %}
+							</select>
+						</div>
+						<a class="d-block mt-2" href="javascript: void(0);" onclick="javascript: ka_step1.activateDelimiter('custom');">{{ t('define manually') }}</a>
+					</div>
+
+					<div id="custom_delimiter_row" {% if (params['delimiter_option'] == 'predefined') %} style="display:none" {% endif %}>
+						<input type="text" class="form-control " style="width: 290px"
+							   id="custom_delimiter" name="custom_delimiter" value="{{ params['delimiter'] }}" />
+						<a class="d-block mt-2" href="javascript: void(0);" onclick="javascript: ka_step1.activateDelimiter('predefined');">{{ t('select from predefined values') }}</a>
+					</div>
+				{% endblock %}
+			{% endembed %}
+
+            {% embed dir(_self) ~ 'field.twig' with {
+				title: t('File Charset'),
+				tooltip: t('You have to be aware of the...')
+			} %}
+				{% block field_value %}
+					<input type="hidden" id="charset_option" name="charset_option" value="{{ params['charset_option'] }}" />
+					<div id="predefined_charset_row" {% if (params['charset_option'] != 'predefined') %} style="display:none" {% endif %}>
+						<div class="l-select-wrapper {% if (delimiter_is_ok) %}l-checked{% endif %}">
+							<select name="charset" id="charset" class="form-select"
+									onchange="javascript: ka_step1.resetMark('charset');" style="width:300px;" {% if (charset_is_ok) %} mark_valid {% endif %}>
+								{% for key, charset in charsets %}
+									<option value="{{ key }}" {% if key == params['charset'] %} selected="selected" {% endif %}>{{ charset }}</option>
+								{% endfor %}
+							</select>
+						</div>
+						<a class="d-block mt-2" href="javascript: void(0);" onclick="javascript: ka_step1.activateCharset('custom');">{{ t('define manually') }}</a>
+					</div>
+					<div id="custom_charset_row" {% if (params['charset_option'] == 'predefined') %} style="display:none" {% endif %}>
+						<input type="text" class="form-control" style="width: 290px" id="custom_charset" name="custom_charset" value="{{ params['charset'] }}" />
+						<a class="d-block mt-2" href="javascript: void(0);" onclick="javascript: ka_step1.activateCharset('predefined');">{{ t('select from predefined values') }}</a>
+					</div>
+				{% endblock %}
+			{% endembed %}
+
+            {% embed dir(_self) ~ 'field.twig' with {
+				title: t('Import Mode'),
+				tooltip: t('The mode affects only data ...')
+			} %}
+				{% block field_value %}
+					<select name="update_mode" style="width: 300px" class="form-select">
+						<option {% if (params['update_mode'] == 'add') %} selected="selected" {% endif %} value="add">{{ t('Add new records (safe)') }}</option>
+						<option {% if (params['update_mode'] == 'replace') %} selected="selected" {% endif %} value="replace">{{ t('Replace old records') }}</option>
+					</select>
+				{% endblock %}
+			{% endembed %}
+
+            {# store #}
+
+            {% if (stores|length > 1) %}
+				{% embed dir(_self) ~ 'field.twig' with {
+					title: t('Store')
+				} %}
+					{% block field_value %}
+						<select name="store_ids[]" multiple="multiple" size="5" style="width: 300px" class="form-select">
+							{% for store in stores %}
+								<option value="{{ store.store_id }}" {% if store.store_id in params['store_ids'] %} selected="selected" {% endif %}>{{ store.name }}</option>
+							{% endfor %}
+						</select>
+					{% endblock %}
+				{% endembed %}
+
+			{% else %}
+				{% embed dir(_self) ~ 'field.twig' with {
+					field_class: 'pt-2',
+					title: t('Store')
+				} %}
+					{% block field_value %}
+						{% set store = stores|first %} {{ store['name'] }}
+						<input type="hidden" name="store_id" value="{{ store['store_id'] }}" />
+					{% endblock %}
+				{% endembed %}
+			{% endif %}

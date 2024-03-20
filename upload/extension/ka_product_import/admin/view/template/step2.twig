@@ -87,15 +87,15 @@
 
 				<ul class="nav nav-tabs">
 					<li><a href="#tab-general" class="nav-link active" data-bs-toggle="tab">{{ t('General') }}</a></li>
-					<li><a href="#tab-attributes" class="nav-link" data-bs-toggle="tab">{{ t('Attributes') }}</a></li>
-					<li><a href="#tab-filters" class="nav-link" data-bs-toggle="tab">{{ t('Filters') }}</a></li>
-					<li><a href="#tab-options" class="nav-link" data-bs-toggle="tab">{{ t('Options') }}</a></li>
-					{% if (matches.discounts) %}<li><a href="#tab-discounts" class="nav-link" data-bs-toggle="tab">{{ t('Discounts') }}</a></li>{% endif %}
-					{% if (matches.specials) %}<li><a href="#tab-specials" class="nav-link" data-bs-toggle="tab">{{ t('Specials') }}</a></li>{% endif %}
-					{% if (matches.reward_points) %}<li><a href="#tab-reward_points" class="nav-link" data-bs-toggle="tab">{{ t('Reward Points') }}</a></li>{% endif %}
-					{% if (matches.subscriptions) %}<li><a href="#tab-subscriptions" class="nav-link" data-bs-toggle="tab">{{ t('Subscriptions') }}</a></li>{% endif %}
-					{% if (matches.reviews) %}<li><a href="#tab-reviews" class="nav-link" data-bs-toggle="tab">{{ t('Reviews') }}</a></li>{% endif %}
-					{% if (variants_enabled) %}<li><a href="#tab-variants" class="nav-link" data-bs-toggle="tab">{{ t('Variants') }}</a></li>{% endif %} 
+{#					<li><a href="#tab-attributes" class="nav-link" data-bs-toggle="tab">{{ t('Attributes') }}</a></li>#}
+{#					<li><a href="#tab-filters" class="nav-link" data-bs-toggle="tab">{{ t('Filters') }}</a></li>#}
+{#					<li><a href="#tab-options" class="nav-link" data-bs-toggle="tab">{{ t('Options') }}</a></li>#}
+{#					{% if (matches.discounts) %}<li><a href="#tab-discounts" class="nav-link" data-bs-toggle="tab">{{ t('Discounts') }}</a></li>{% endif %}#}
+{#					{% if (matches.specials) %}<li><a href="#tab-specials" class="nav-link" data-bs-toggle="tab">{{ t('Specials') }}</a></li>{% endif %}#}
+{#					{% if (matches.reward_points) %}<li><a href="#tab-reward_points" class="nav-link" data-bs-toggle="tab">{{ t('Reward Points') }}</a></li>{% endif %}#}
+{#					{% if (matches.subscriptions) %}<li><a href="#tab-subscriptions" class="nav-link" data-bs-toggle="tab">{{ t('Subscriptions') }}</a></li>{% endif %}#}
+{#					{% if (matches.reviews) %}<li><a href="#tab-reviews" class="nav-link" data-bs-toggle="tab">{{ t('Reviews') }}</a></li>{% endif %}#}
+{#					{% if (variants_enabled) %}<li><a href="#tab-variants" class="nav-link" data-bs-toggle="tab">{{ t('Variants') }}</a></li>{% endif %} #}
 					{{ include (dir(_self) ~ 'step2/nav_custom.twig', ignore_missing = true) }}					
 				</ul>
 				

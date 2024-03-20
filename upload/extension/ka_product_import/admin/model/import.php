@@ -101,6 +101,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 		$this->kaformat = new \extension\ka_extensions\Format();
 		
 		$this->file = new \extension\ka_extensions\FileUTF8();
+        $this->file2 = new \extension\ka_extensions\FileUTF8();
 		
  		$this->stat   = &$this->getSession('stat');
 		$this->params = &$this->getSession('params');
@@ -373,13 +374,17 @@ class ModelImport extends \extension\ka_extensions\Model {
 			$this->lastError = $this->file->getLastError();
 			return false;
 		}
+        
+        if (!$this->file2->fopen($params['file2'], 'r', $options, $params['charset'])) {
+            $this->lastError = $this->file2->getLastError();
+            return false;
+        }
 		
 		return true;
 	}
 
-	
-	public function readColumns($delimiter) {
 
+    public function readColumns($delimiter, $fileType = 'kamod') {
 		if (strlen($delimiter)) {
 			$this->lastError = "Delimiter is empty";
 			$delimiter = $this->getRealDelimiter($delimiter);
@@ -397,27 +402,97 @@ class ModelImport extends \extension\ka_extensions\Model {
 			return false;
 		}
 
-		$count = array();
-		
-		$new_columns = array();
-		foreach ($columns as $cv) {
-			$cv = trim($cv);
-			
-			// specify a name for empty columns
-			if (empty($cv)) {
-				$cv = 'empty';
-			}
-			
-			if (!empty($count[$cv])) {
-				$count[$cv]++;
-				$cv = $cv . '-' . $count[$cv];
-			} else {
-				$count[$cv] = 1;
-			}
-			$new_columns[] = $cv;
-		}
+        /**
+         * 不改 import 的演算法，而是修改檔案的欄位名
+         */
+        foreach ($columns as $index => $column) {
+            if ($column == 'et_title_parent_sku') {
+                $columns[$index] = 'model';
+            }
+            if ($column == 'et_title_product_name') {
+                $columns[$index] = 'name';
+            }
+            if ($column == 'et_title_product_description') {
+                $columns[$index] = 'description';
+            }
+        }
 
-		return $new_columns;
+        $count = array();
+
+        $new_columns = array();
+        foreach ($columns as $cv) {
+            $cv = trim($cv);
+
+            // specify a name for empty columns
+            if (empty($cv)) {
+                $cv = 'empty';
+            }
+
+            if (!empty($count[$cv])) {
+                $count[$cv]++;
+                $cv = $cv . '-' . $count[$cv];
+            } else {
+                $count[$cv] = 1;
+            }
+            $new_columns[] = $cv;
+        }
+
+        /**
+         * 當有 file2
+         */
+        if ($fileType == 'shopee') {
+            // file2
+            if (empty($this->file2->handle)) {
+                $this->lastError = "readColumns: file handle is not valid.";
+                return false;
+            }
+            $this->file2->rewind();
+
+            $columns2 = fgetcsv($this->file2->handle, 0, $delimiter, $this->enclosure, $this->escape);
+            
+            if (empty($columns2)) {
+                return false;
+            }
+            
+            foreach ($columns2 as $index => $column) {
+                if ($column == 'et_title_parent_sku') {
+                    $columns2[$index] = 'model';
+                }
+                if ($column == 'et_title_product_name') {
+                    $columns2[$index] = 'name';
+                }
+                if ($column == 'et_title_variation_price') {
+                    $columns2[$index] = 'price';
+                }
+                if ($column == 'et_title_variation_stock') {
+                    $columns2[$index] = 'quantity';
+                }
+            }
+
+            $count2 = array();
+
+            $new_columns2 = array();
+            foreach ($columns2 as $cv) {
+                $cv = trim($cv);
+
+                // specify a name for empty columns
+                if (empty($cv)) {
+                    $cv = 'empty';
+                }
+
+                if (!empty($count2[$cv])) {
+                    $count2[$cv]++;
+                    $cv = $cv . '-' . $count2[$cv];
+                } else {
+                    $count2[$cv] = 1;
+                }
+                $new_columns2[] = $cv;
+            }
+            
+            return array_unique(array_merge($new_columns,$new_columns2), SORT_REGULAR);
+        }
+
+        return $new_columns;
 	}
 
 
@@ -1155,7 +1230,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 		}
 		
 		if (!$this->openFile($this->params)) {
-			throw new \Exception("Cannot open file: " . $this->params['file']);
+			throw new \Exception("Cannot open file: " . $this->params['file'] . ", " . $this->params['file2']);
 		}
 
 		$col_count = $this->stat['col_count'];
@@ -1165,11 +1240,46 @@ class ModelImport extends \extension\ka_extensions\Model {
 				throw new \Exception("Cannot offset at $this->stat[offset] in file: $file.");
 			}
 		} else {
-			$tmp = fgetcsv($this->file->handle, 0, $this->params['delimiter'], $this->enclosure, $this->escape);
-			$this->stat['lines_processed'] = 1;
-			if (is_null($tmp) || count($tmp) != $col_count) {
-				throw new \Exception("File header does not match the initial file header.");
-			}
+            $tmp = fgetcsv($this->file->handle, 0, $this->params['delimiter'], $this->enclosure, $this->escape);
+            foreach ($tmp as $index => $column) {
+                if ($column == 'et_title_parent_sku') {
+                    $tmp[$index] = 'model';
+                }
+                if ($column == 'et_title_product_name') {
+                    $tmp[$index] = 'name';
+                }
+                if ($column == 'et_title_product_description') {
+                    $tmp[$index] = 'description';
+                }
+            }
+
+            if (!empty($this->params['file2'])) {
+                $tmp2 = fgetcsv($this->file2->handle, 0, $this->params['delimiter'], $this->enclosure, $this->escape);
+                foreach ($tmp2 as $index => $column) {
+                    if ($column == 'et_title_parent_sku') {
+                        $tmp2[$index] = 'model';
+                    }
+                    if ($column == 'et_title_product_name') {
+                        $tmp2[$index] = 'name';
+                    }
+                    if ($column == 'et_title_variation_price') {
+                        $tmp2[$index] = 'price';
+                    }
+                    if ($column == 'et_title_variation_stock') {
+                        $tmp2[$index] = 'quantity';
+                    }
+                }
+            }
+            
+            $this->stat['lines_processed'] = 1;
+            
+            if (!empty($this->params['file2'])) {
+                if (is_null($tmp) || is_null($tmp2) || count(array_unique(array_merge($tmp,$tmp2), SORT_REGULAR)) != $col_count) {
+                    throw new \Exception("File or File2 header does not match the initial file header.");
+                }
+            } elseif (is_null($tmp) || count($tmp) != $col_count) {
+                throw new \Exception("File header does not match the initial file header.");
+            }
 		}
 
 		while (1) {
@@ -1186,11 +1296,13 @@ class ModelImport extends \extension\ka_extensions\Model {
 				break;
 			}
 
-			$row = $this->getNextRow();
-			if (is_null($row)) {
-				// probably the file is finished
-				break;
-			}
+            // getNextRow 要把第2個檔案加進去
+            $row = $this->getNextRow();
+
+            if (empty($row[0]) || is_null($row) || $row[0] == 'basic_info' || $row[0] == 'sales_info' || $row[0] == '商品ID') {
+                // probably the file is finished
+                break;
+            }
 
 			$this->stat['lines_processed']++;
 			
@@ -1212,6 +1324,7 @@ class ModelImport extends \extension\ka_extensions\Model {
 				}
 			}
 
+            // getDataFromRow 要把第2個檔案加進去
 			$data = $this->getDataFromRow($row);
 
 			// set the price multiplier

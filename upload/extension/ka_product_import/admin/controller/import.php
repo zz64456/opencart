@@ -104,23 +104,29 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 		//
 		if ($this->request->server['REQUEST_METHOD'] == 'POST') {
 
-			if (!isset($this->request->post['images_dir'])) {
-				$this->addTopMessage($this->language->get("Wrong post parameters. Plea..."), 'E');
-				$this->session->data['save_params'] = true;
-			 	return $this->response->redirect($this->url->linka('extension/ka_product_import/import'));
-			}
+            if ($this->request->post['fileType'] == 'shopee') {
+                //
+
+            } elseif ($this->request->post['fileType'] == 'kamod') {
+                if (!isset($this->request->post['images_dir'])) {
+                    $this->addTopMessage($this->language->get("Wrong post parameters. Plea..."), 'E');
+                    $this->session->data['save_params'] = true;
+                    return $this->response->redirect($this->url->linka('extension/ka_product_import/import'));
+                }
+                // check the 'incoming images' directory
+                //
+                $incoming_images_dir = $this->store_images_dir . '/' . $this->request->post['incoming_images_dir'];
+                if (!is_dir($incoming_images_dir)) {
+                    mkdir($incoming_images_dir, 0775, true);
+                }
+                if (!is_dir($incoming_images_dir)) {
+                    $this->addTopMessage($this->language->get("The Incoming images direc..."), 'E');
+                    $this->session->data['save_params'] = true;
+                    return $this->response->redirect($this->url->linka('extension/ka_product_import/import'));
+                }
+            }
 			
-			// check the 'incoming images' directory
-			//
-			$incoming_images_dir = $this->store_images_dir . '/' . $this->request->post['incoming_images_dir'];
-			if (!is_dir($incoming_images_dir)) {
-				mkdir($incoming_images_dir, 0775, true);
-			}
-			if (!is_dir($incoming_images_dir)) {
-				$this->addTopMessage($this->language->get("The Incoming images direc..."), 'E');
-				$this->session->data['save_params'] = true;
-			 	return $this->response->redirect($this->url->linka('extension/ka_product_import/import'));
-			}
+			
 
 			// process profile submission
 			//
@@ -226,10 +232,23 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 					if (!file_exists($this->params['file'])) {
 						$this->params['file'] = '';
 						$this->params['file_name'] = '';
+
+                        if ($this->request->post['fileType'] == 'shopee') {
+                            $this->params['file2'] = '';
+                            $this->params['file_name2'] = '';
+                        }
 					}
-				
-				} elseif (!empty($this->request->files['file']) && is_uploaded_file($this->request->files['file']['tmp_name'])) {
-				
+
+                } elseif (
+                    !empty($this->request->files['file'])
+                    && is_uploaded_file($this->request->files['file']['tmp_name'])
+                    || (
+                        $this->request->post['fileType'] == 'shopee'
+                        && !empty($this->request->files['file2'])
+                        && is_uploaded_file($this->request->files['file2']['tmp_name'])
+                    )
+                ) {			
+                    // file	
 					$filename = $this->request->files['file']['name'] . '.' . md5(rand());
 					if (move_uploaded_file($this->request->files['file']['tmp_name'], $this->tmp_dir . $filename)) {
 					  $this->params['file']      = $this->tmp_dir . $filename;
@@ -237,6 +256,14 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 					} else {
 						$msg = $msg . str_replace('{dest_dir}', $this->tmp_dir, $this->language->get('error_cannot_move_file'));
 					}
+					// file2
+                    $filename2 = $this->request->files['file2']['name'] . '.' . md5(rand());
+                    if (move_uploaded_file($this->request->files['file2']['tmp_name'], $this->tmp_dir . $filename2)) {
+                        $this->params['file2']      = $this->tmp_dir . $filename2;
+                        $this->params['file_name2'] = $this->request->files['file2']['name'];
+                    } else {
+                        $msg = $msg . str_replace('{dest_dir}', $this->tmp_dir, $this->language->get('error_cannot_move_file2'));
+                    }
 				}
 				
 				if (empty($this->params['file'])) {
@@ -259,7 +286,11 @@ class ControllerImport extends \extension\ka_extensions\ControllerForm {
 				$params = $this->params;
 				
 				if ($this->kamodel_import->openFile($params)) {
-					$this->params['columns'] = $this->kamodel_import->readColumns($params['delimiter']);
+                    if ($this->request->post['fileType'] == 'shopee') {
+                        $this->params['columns'] = $this->kamodel_import->readColumns($params['delimiter'], $this->request->post['fileType']);
+                    } elseif ($this->request->post['fileType'] == 'kamod') {
+                        $this->params['columns'] = $this->kamodel_import->readColumns($params['delimiter']);
+                    }
 
 					// remove columns with an empty name from the columns list
 					$columns = array_diff($this->params['columns'], array(""));

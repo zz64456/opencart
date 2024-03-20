@@ -32,11 +32,16 @@ abstract class KaGlobal {
 	
 	
 	public static function getLanguageImage($language) {
-		$var = '';	
-		if (!static::isAdminArea()) {
-			$var = "catalog/";
-		}
-		$var .= "language/" . $language['code'] . "/" . $language['code'] . ".png";
+        $var = '';
+
+        if ($language['code'] == 'zh-TW') {
+            $var = "/extension/osec_language/admin/language/" . $language['code'] . "/" . $language['code'] . ".png";
+        } else {
+            if (!static::isAdminArea()) {
+                $var = "catalog/";
+            }
+            $var .= "language/" . $language['code'] . "/" . $language['code'] . ".png";
+        }
 		
 		return $var;
 	}

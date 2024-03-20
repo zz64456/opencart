@@ -50,9 +50,9 @@
 					
 				<ul class="nav nav-tabs">
 					<li class="nav-item"><a href="#tab-general" class="nav-link active" data-bs-toggle="tab">{{ t('General') }}</a></li>
-					<li class="nav-item"><a href="#tab-advanced" class="nav-link" data-bs-toggle="tab">{{ t('Advanced') }}</a></li>
-					<li class="nav-item"><a href="#tab-downloads" class="nav-link" data-bs-toggle="tab">{{ t('Downloads') }}</a></li>
-					<li class="nav-item"><a href="#tab-extra" class="nav-link" data-bs-toggle="tab">{{ t('Extra') }}</a></li>
+{#					<li class="nav-item"><a href="#tab-advanced" class="nav-link" data-bs-toggle="tab">{{ t('Advanced') }}</a></li>#}
+{#					<li class="nav-item"><a href="#tab-downloads" class="nav-link" data-bs-toggle="tab">{{ t('Downloads') }}</a></li>#}
+{#					<li class="nav-item"><a href="#tab-extra" class="nav-link" data-bs-toggle="tab">{{ t('Extra') }}</a></li>#}
 					{{ include (dir(_self) ~ 'step1/nav_custom.twig', ignore_missing = true) }}
 				</ul>
 				
@@ -89,15 +89,33 @@ var ka_step1 = new function() {
 	  if (id == 'server') {
 	    $('#local_location').hide();
 	    $('#server_location').fadeIn(500);
+		  $('#server_location').fadeIn(500);
 	  } else if (id == 'local') {
 	    $('#server_location').hide();
 	    $('#local_location').fadeIn(500);
+		  $('#local_location2').fadeIn(500);
 	  }
 	}	
 
 	this.activateLocation = (id) => {
 		this.refreshLocation();
 	}
+
+	this.refreshFileType = () => {
+
+		var id = $('[name=fileType]:checked').val();
+
+		if (id == 'shopee') {
+			$('#local_location2').fadeIn(500);
+		} else if (id == 'kamod') {
+			$('#local_location2').hide();
+		}
+	}
+
+	this.activateFileType = (id) => {
+		this.refreshFileType();
+	}
+
 
 	this.refreshDelimiter = () => {
 		var id = $('#delimiter_option').val();
@@ -320,6 +338,7 @@ $(document).ready(function() {
 	//
 	if (window.File && window.FileReader && window.FileList && window.Blob) {
 		$('#input_file').on('change', ka_step1.inputFileHandler);
+		$('#input_file2').on('change', ka_step1.inputFileHandler);
 	}
 	
 });

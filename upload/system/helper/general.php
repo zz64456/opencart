@@ -28,3 +28,35 @@ function oc_strtolower(string $string) {
 function oc_token(int $length = 32): string {
 	return substr(bin2hex(random_bytes($length)), 0, $length);
 }
+
+/**
+ * test print all
+ */
+function dd($items, $items2 = [], $items3 = [], $items4 = [], $quit = true)
+{
+    echo "<pre>";
+    print_r($items);
+    echo "</pre>";
+
+    if (!empty($items2) || $items2 == 0 || $items2 == '0') {
+        echo "<pre>";
+        print_r($items2);
+        echo "</pre>";
+    }
+
+    if (!empty($items3) || $items3 == 0 || $items3 == '0') {
+        echo "<pre>";
+        print_r($items3);
+        echo "</pre>";
+    }
+
+    if (!empty($items4) || $items4 == 0 || $items4 == '0') {
+        echo "<pre>";
+        print_r($items4);
+        echo "</pre>";
+    }
+
+    if ($quit):
+        exit;
+    endif;
+}

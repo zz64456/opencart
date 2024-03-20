@@ -205,5 +205,6 @@ $_['txt_form_page_title'] = 'CSV Product Import';
 
 $_['error_file_not_found']    = 'Sorry, the file was not found. Please verify that the file exists and its size is less than the maximum upload limit.';
 $_['error_cannot_move_file']  = 'Uploaded File cannot be moved to a temporary directory ({dest_dir}). Check directory permissons.';
+$_['error_cannot_move_file2']  = 'Uploaded File2 cannot be moved to a temporary directory ({dest_dir}). Check directory permissons.';
 
 $_['txt_descr_master_model'] = 'When the master model is not empty, a new product will be created as a variant of that master product.';

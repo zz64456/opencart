@@ -6,7 +6,7 @@ $_['site_url']             = '';
 $_['language_code']        = 'en-gb';
 
 // Date
-$_['date_timezone']        = 'UTC';
+$_['date_timezone']        = 'Asia/Taipei';
 
 // Database
 $_['db_autostart']         = false;

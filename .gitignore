@@ -45,3 +45,6 @@
 
 # Storage
 /storage/*
+
+# Journal3 Assets
+/upload/catalog/view/theme/journal3/assets

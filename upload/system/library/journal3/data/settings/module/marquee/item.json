@@ -1,0 +1,73 @@
+{
+  "name": {
+    "type": "Input",
+    "value": "New Item"
+  },
+  "status": {
+    "type": "Status"
+  },
+  "title": {
+    "type": "InputLang",
+    "php": true
+  },
+  "icon": {
+    "type": "Icon",
+    "selector": ".marquee-%s .marquee-slider .marquee-items .marquee-item-%s > span::before"
+  },
+  "itemPadding": {
+    "type": "Padding",
+    "selector": ".marquee-%s .marquee-slider .marquee-items .marquee-item-%s > span"
+  },
+  "iconHover": {
+    "type": "Color",
+    "selector": ".marquee-%s .marquee-slider .marquee-items a.marquee-item-%s:hover > span::before",
+    "property": "color"
+  },
+  "link": {
+    "type": "Link",
+    "php": true
+  },
+  "itemBackground": {
+    "type": "Background",
+    "selector": ".marquee-%s .marquee-slider .marquee-items .marquee-item-%s > span"
+  },
+  "itemBackgroundHover": {
+    "type": "Background",
+    "selector": ".marquee-%s .marquee-slider .marquee-items a.marquee-item-%s:hover > span"
+  },
+  "itemFont": {
+    "type": "Font",
+    "selector": ".marquee-%s .marquee-slider .marquee-items .marquee-item-%s > span"
+  },
+  "itemFontHover": {
+    "type": "Font",
+    "selector": ".marquee-%s .marquee-slider .marquee-items a.marquee-item-%s:hover > span"
+  },
+  "itemShadow": {
+    "type": "Shadow",
+    "selector": ".marquee-%s .marquee-slider .marquee-items .marquee-item-%s > span"
+  },
+  "itemShadowHover": {
+    "type": "Shadow",
+    "selector": ".marquee-%s .marquee-slider .marquee-items a.marquee-item-%s:hover > span"
+  },
+  "itemBorder": {
+    "type": "Border",
+    "selector": ".marquee-%s .marquee-slider .marquee-items .marquee-item-%s > span"
+  },
+  "itemBorderHover": {
+    "type": "Color",
+    "property": "border-color",
+    "selector": ".marquee-%s .marquee-slider .marquee-items a.marquee-item-%s:hover > span"
+  },
+  "itemBorderRadius": {
+    "type": "BorderRadius",
+    "selector": ".marquee-%s .marquee-slider .marquee-items .marquee-item-%s > span"
+  },
+  "customClass": {
+    "type": "Input"
+  },
+  "customCss": {
+    "type": "Input"
+  }
+}

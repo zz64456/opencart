@@ -1,0 +1,378 @@
+{
+  "Font": {
+    "type": "Font",
+    "selector": ".j-menu > li > a, .j-menu > li > a > .links-text, .desktop-language-wrapper button, .desktop-currency-wrapper button, .mobile-language-wrapper button, .mobile-currency-wrapper button, #cart > a"
+  },
+  "FontHover": {
+    "type": "Font",
+    "selector": ".j-menu > li:hover > a, .j-menu > li:hover > a > .links-text, .j-menu > li.active > a > .links-text, .j-menu > li.open > a > .links-text, .j-menu > li.panel-active > a > .links-text, #cart:hover > a, .desktop-language-wrapper .dropdown:hover button, .desktop-currency-wrapper .dropdown:hover button, .mobile-language-wrapper .dropdown:hover button, .mobile-currency-wrapper .dropdown:hover button"
+  },
+  "FontActive": {
+    "type": "Font",
+    "selector": ".j-menu > li.open > a, .j-menu > li.open > a > .links-text, .j-menu > li.active > a > .links-text, .j-menu > li.panel-active > a > .links-text",
+    "important": true
+  },
+  "Display": {
+    "type": "Radio",
+    "value": "",
+    "rules": {
+      "left": {
+        ".j-menu > li > a": "flex-direction:row"
+      },
+      "top": {
+        ".j-menu > li > a": "flex-direction:column"
+      }
+    }
+  },
+  "SVisibility": {
+    "type": "Toggle",
+    "value": "true",
+    "rules": {
+      "true": {
+        ".j-menu > li > a > .links-text > s": "display: var(--display, block)"
+      },
+      "false": {
+        ".j-menu > li > a > .links-text > s": "display: none"
+      }
+    }
+  },
+  "SDisplay": {
+    "type": "Radio",
+    "value": "below",
+    "rules": {
+      "side": {
+        ".j-menu > li.main-menu-item > a > .links-text": "--display: flex",
+        ".j-menu > li > a > .links-text > s": "--display: inline-block; margin: 0 0.3em"
+      },
+      "below": {
+        ".j-menu > li.main-menu-item > a > .links-text": "--display: inline-block",
+        ".j-menu > li > a > .links-text > s": "--display: block; margin:0.1em 0"
+      }
+    }
+  },
+  "SPadding": {
+    "type": "Padding",
+    "selector": ".j-menu > li > a > .links-text > s"
+  },
+  "SMargin": {
+    "type": "Margin",
+    "selector": ".j-menu > li > a > .links-text > s"
+  },
+  "SBackground": {
+    "type": "Background",
+    "selector": ".j-menu > li > a > .links-text > s"
+  },
+  "SBackgroundHover": {
+    "type": "Background",
+    "selector": ".j-menu > li:hover > a > .links-text > s"
+  },
+  "SBorderRadius": {
+    "type": "BorderRadius",
+    "selector": ".j-menu > li > a > .links-text > s"
+  },
+  "DropdownIndicator": {
+    "type": "Toggle",
+    "value": "",
+    "rules": {
+      "true": {
+        ".j-menu > .dropdown > a > .count-badge": "margin-inline-end:0",
+        ".j-menu > .dropdown > a > .count-badge + .open-menu + .menu-label": "margin-inline-start:var(--x, 7px)",
+        ".j-menu > .dropdown > a::after": "display: block",
+        ".j-menu > .dropdown > a": "--dropdown-indicator: -8px"
+      },
+      "false": {
+        ".j-menu > .dropdown > a > .count-badge": "margin-inline-end:5px",
+        ".j-menu > .dropdown > a > .count-badge + .open-menu + .menu-label": "margin-inline-start:0",
+        ".j-menu > .dropdown > a::after": "display: none",
+        ".j-menu > .dropdown > a": "--dropdown-indicator: 0px"
+      }
+    }
+  },
+  "DIColor": {
+    "type": "Color",
+    "selector": ".j-menu > .dropdown > a::after, .dropdown > button::after, .desktop-language-wrapper .dropdown .dropdown-toggle::after, .desktop-currency-wrapper .dropdown .dropdown-toggle::after, .mobile-language-wrapper .dropdown .dropdown-toggle::after, .mobile-currency-wrapper .dropdown .dropdown-toggle::after",
+    "property": "border-color"
+  },
+  "DIColorHover": {
+    "type": "Color",
+    "selector": ".j-menu > li.dropdown:hover > a::after, .j-menu > li.active.dropdown > a::after,  .j-menu > li.open.dropdown > a::after,  .dropdown:hover > button::after",
+    "property": "border-color"
+  },
+  "DIOpacity": {
+    "type": "InputNumber",
+    "value": "",
+    "rules": {
+      "@": {
+        ".j-menu .dropdown > a::after,  .dropdown > button::after, .desktop-language-wrapper .dropdown .dropdown-toggle::after, .desktop-currency-wrapper .dropdown .dropdown-toggle::after, .mobile-language-wrapper .dropdown .dropdown-toggle::after, .mobile-currency-wrapper .dropdown .dropdown-toggle::after": "opacity:%s"
+      }
+    }
+  },
+  "DISize": {
+    "type": "InputNumber",
+    "value": "",
+    "rules": {
+      "@": {
+        ".j-menu .dropdown > a::after,  .dropdown > button::after, .desktop-language-wrapper .dropdown .dropdown-toggle::after, .desktop-currency-wrapper .dropdown .dropdown-toggle::after, .mobile-language-wrapper .dropdown .dropdown-toggle::after, .mobile-currency-wrapper .dropdown .dropdown-toggle::after": "border-width:%spx"
+      }
+    }
+  },
+  "DIWidth": {
+    "type": "InputNumber",
+    "rules": {
+      "@": {
+        ".j-menu .dropdown > a::after,  .dropdown > button::after, .desktop-language-wrapper .dropdown .dropdown-toggle::after, .desktop-currency-wrapper .dropdown .dropdown-toggle::after, .mobile-language-wrapper .dropdown .dropdown-toggle::after, .mobile-currency-wrapper .dropdown .dropdown-toggle::after": "border-top-width:%spx; border-bottom-width:%spx"
+      }
+    }
+  },
+  "DIOffset": {
+    "type": "InputPair",
+    "selector": ".j-menu .dropdown > a::after,  .dropdown > button::after, .desktop-language-wrapper .dropdown .dropdown-toggle::after, .desktop-currency-wrapper .dropdown .dropdown-toggle::after, .mobile-language-wrapper .dropdown .dropdown-toggle::after, .mobile-currency-wrapper .dropdown .dropdown-toggle::after",
+    "properties": {
+      "first": "left: %spx",
+      "second": "top: %spx"
+    },
+    "rtlProperties": {
+      "first": "right: %spx",
+      "second": "top: %spx"
+    }
+  },
+  "ItemMaxWidth": {
+    "type": "InputNumber",
+    "value": "",
+    "property": "--menu-max-width: %spx",
+    "selector": ".j-menu > li > a > .links-text, &.language-currency .currency-title, &.language-currency .language-title"
+  },
+  "TextTruncate": {
+    "type": "Toggle",
+    "value": "",
+    "rules": {
+      "true": {
+        ".j-menu > li > a > .links-text": "max-width:var(--menu-max-width, none); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-bottom: 1px;",
+        "&.language-currency .currency-title": "max-width:var(--menu-max-width, none); white-space: nowrap; overflow: hidden; text-overflow: ellipsis",
+        "&.language-currency .language-title": "max-width:var(--menu-max-width, none); white-space: nowrap; overflow: hidden; text-overflow: ellipsis"
+      },
+      "false": {
+        ".j-menu > li > a > .links-text": "max-width:none; white-space: normal; overflow: visible; text-overflow: initial; padding-bottom: initial;",
+        "&.language-currency .currency-title": "max-width:none; white-space: normal; overflow: visible; text-overflow: initial",
+        "&.language-currency .language-title": "max-width:none; white-space: normal; overflow: visible; text-overflow: initial"
+      }
+    }
+  },
+  "BorderRadius": {
+    "type": "BorderRadius",
+    "selector": ".j-menu > li > a",
+    "important": true
+  },
+  "SFont": {
+    "type": "Font",
+    "selector": ".j-menu > li > a > span > s"
+  },
+  "SFontHover": {
+    "type": "Font",
+    "selector": ".j-menu > li:hover > a > span > s, .j-menu > li.active > a > span > s, .j-menu > li.panel-active > a > span > s"
+  },
+  "StaticFont": {
+    "type": "Font",
+    "selector": ".j-menu > li > a:not([href]), .j-menu > li > a:not([href]) > .links-text, .j-menu > li > a[href='javascript:;'], .j-menu > li > a[href='javascript:;'] > .links-text",
+    "important": "true"
+  },
+  "StaticBG": {
+    "type": "Background",
+    "selector": ".j-menu > li > a:not([href]), .j-menu > li > a[href='javascript:;']",
+    "important": "true"
+  },
+  "IconVisibility": {
+    "type": "Toggle",
+    "value": "",
+    "rules": {
+      "true": {
+        ".j-menu > li > a::before": "display: flex"
+      },
+      "false": {
+        ".j-menu > li > a::before": "display: none"
+      }
+    }
+  },
+  "ItemTextVisibility": {
+    "type": "Toggle",
+    "value": "",
+    "rules": {
+      "true": {
+        ".j-menu > li > a > .links-text": "display: block"
+      },
+      "false": {
+        ".j-menu > li > a > .links-text": "display: none"
+      }
+    }
+  },
+  "Icon": {
+    "type": "Icon",
+    "selector": ".j-menu > li > a::before"
+  },
+  "IconColor": {
+    "type": "Color",
+    "selector": ".j-menu > li > a::before",
+    "property": "color"
+  },
+  "IconHover": {
+    "type": "Color",
+    "selector": ".j-menu > li:hover > a::before, .j-menu > li.active > a::before, .j-menu > li.open > a::before, .j-menu > li.panel-active > a::before",
+    "property": "color"
+  },
+  "IconActive": {
+    "type": "Color",
+    "selector": ".j-menu > li.open > a::before, .j-menu > li.panel-active > a::before",
+    "property": "color"
+  },
+  "IconMargin": {
+    "type": "Margin",
+    "selector": ".j-menu > li > a::before, .j-menu > li > a .links-text em"
+  },
+  "IconWidth": {
+    "type": "InputNumber",
+    "rules": {
+      "@": {
+        ".j-menu > li > a::before": "min-width:%spx"
+      }
+    }
+  },
+  "IconSize": {
+    "type": "InputNumber",
+    "rules": {
+      "@": {
+        ".j-menu > li > a::before": "font-size:%spx"
+      }
+    }
+  },
+  "Background": {
+    "type": "Background",
+    "selector": ".j-menu > li > a, .desktop-language-wrapper button, .desktop-currency-wrapper button, .mobile-language-wrapper button, .mobile-currency-wrapper button"
+  },
+  "BackgroundHover": {
+    "type": "Background",
+    "selector": ".j-menu > li:hover > a, .j-menu > li.active > a, .j-menu > li.open > a, .j-menu > li.panel-active > a, .desktop-language-wrapper .dropdown:hover button, .desktop-currency-wrapper .dropdown:hover button, .mobile-language-wrapper .dropdown:hover button, .mobile-currency-wrapper .dropdown:hover button"
+  },
+  "BackgroundActive": {
+    "type": "Background",
+    "selector": ".j-menu > li.open > a, .j-menu > li.panel-active > a"
+  },
+  "Shadow": {
+    "type": "Shadow",
+    "selector": ".j-menu > li > a, .desktop-language-wrapper button, .desktop-currency-wrapper button, .mobile-language-wrapper button, .mobile-currency-wrapper button"
+  },
+  "ShadowHover": {
+    "type": "Shadow",
+    "selector": ".j-menu > li:hover > a, .desktop-language-wrapper .dropdown:hover button, .desktop-currency-wrapper .dropdown:hover button, .mobile-language-wrapper .dropdown:hover button, .mobile-currency-wrapper .dropdown:hover button"
+  },
+  "Divider": {
+    "type": "Divider",
+    "selector": ".j-menu > li, &.accordion-menu .menu-item > a + div, .accordion-menu .menu-item > a + div"
+  },
+  "ItemPadding": {
+    "type": "Padding",
+    "selector": ".j-menu > li > a"
+  },
+  "ItemPaddingImage": {
+    "type": "Padding",
+    "selector": ".j-menu > li.has-image a"
+  },
+  "ItemSpacingNew": {
+    "type": "Gap",
+    "variableType": "gap",
+    "property": "--menu-item-gap:%s",
+    "selector": ".j-menu > li"
+  },
+  "ItemSpacingImage": {
+    "type": "Gap",
+    "variableType": "gap",
+    "property": "--menu-item-gap:%s",
+    "selector": ".j-menu > li.has-image"
+  },
+  "CountBadge": {
+    "type": "Variable",
+    "variable": "count_badge",
+    "selector_prefix": ".j-menu > li"
+  },
+  "CountBadgeVisibility": {
+    "type": "Toggle",
+    "value": "",
+    "rules": {
+      "true": {
+        ".j-menu > li > a > .count-badge": "display: inline-flex"
+      },
+      "false": {
+        ".j-menu > li > a > .count-badge": "display: none"
+      }
+    }
+  },
+  "CountBadgePosition": {
+    "type": "Radio",
+    "value": "inline",
+    "rules": {
+      "inline": {
+        ".j-menu > li > a > .count-badge": "position: relative; transform:none; margin-inline-start: var(--x, 6px); margin-top: var(--margin-top, 0px); inset-inline-start: initial"
+      },
+      "floating": {
+        ".j-menu > li > a > .count-badge": "position: absolute; margin-inline-start: 0; margin-top: var(--margin-top, 0px); transform: translate3d(calc(75% + var(--x, 0px)), var(--count-badge-y, var(--menu-badge-y)),0); inset-inline-start: initial;"
+      },
+      "tl": {
+        ".j-menu > li > a > .count-badge": "position: absolute; margin-inline-start: 0; margin-top: var(--margin-top, 0px); transform: translate3d(calc(75% + var(--x, 0px)), var(--count-badge-y, var(--menu-badge-y)),0); inset-inline-start: 0"
+      }
+    },
+    "rtlRules": {
+      "inline": {
+        ".j-menu > li > a > .count-badge": "position: relative; margin-inline-start: var(--x, 0px); transform:none; margin-top: var(--margin-top, 0px); inset-inline-start: initial"
+      },
+      "floating": {
+        ".j-menu > li > a > .count-badge": "position: absolute; margin-inline-start: 0; margin-top: var(--margin-top, 0px); transform: translate3d(calc(-75% + var(--x, 0px)),var(--count-badge-y, var(--menu-badge-y)),0); inset-inline-end: initial"
+      },
+      "tl": {
+        ".j-menu > li > a > .count-badge": "position: absolute; margin-inline-start: 0; margin-top: var(--margin-top, 0px); transform: translate3d(calc(75% + var(--x, 0px)), var(--count-badge-y, var(--menu-badge-y)),0); inset-inline-end: 0"
+      }
+    }
+  },
+  "CountBadgeOffsetNew": {
+    "type": "InputPair",
+    "selector": ".j-menu > li > a > .count-badge",
+    "properties": {
+      "first": "--x: %spx",
+      "second": "--margin-top:%spx"
+    },
+    "rtlProperties": {
+      "first": "--x: calc(0px - %spx)",
+      "second": "--margin-top:%spx"
+    }
+  },
+  "CountBadgeOffsetSticky": {
+    "type": "Input",
+    "value": "",
+    "property": "--margin-top:%spx",
+    "selector": ".j-menu > li > a > .count-badge",
+    "parent_selector": ".header-sticky"
+  },
+  "ImageVisibility": {
+    "type": "Toggle",
+    "value": "",
+    "rules": {
+      "true": {
+        ".j-menu > li > a .menu-image": "display: inline-flex"
+      },
+      "false": {
+        ".j-menu > li > a .menu-image": "display: none"
+      }
+    }
+  },
+  "MenuImage": {
+    "type": "Variable",
+    "variable": "menu_image",
+    "selector_prefix": ".j-menu > li"
+  },
+  "Scale": {
+    "type": "InputPair",
+    "selector": ".j-menu > li > a",
+    "properties": {
+      "first": "--scale-hover: %s",
+      "second": "--scale-active: %s"
+    }
+  }
+}

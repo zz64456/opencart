@@ -1,0 +1,66 @@
+{
+  "headerDesktop": {
+    "type": "Module",
+    "php": true
+  },
+  "headerDesktopLogoImage": {
+    "type": "Radio",
+    "value": "default",
+    "php": true
+  },
+  "headerMobile": {
+    "type": "Module",
+    "php": true
+  },
+  "headerMobileLogoImage": {
+    "type": "Radio",
+    "value": "default",
+    "php": true
+  },
+  "mobileHeaderAt": {
+    "type": "InputValue",
+    "value": "1024",
+    "variableType": "breakpoint",
+    "js": true
+  },
+  "mobileHeaderTablet": {
+    "type": "Toggle",
+    "value": "true",
+    "php": true
+  },
+  "logo": {
+    "type": "ImageLang",
+    "value": "",
+    "php": true
+  },
+  "logo2x": {
+    "type": "ImageLang",
+    "value": "",
+    "php": true
+  },
+  "logoAlternate": {
+    "type": "ImageLang",
+    "value": "",
+    "php": true
+  },
+  "logo2xAlternate": {
+    "type": "ImageLang",
+    "value": "",
+    "php": true
+  },
+  "logoMobile2x": {
+    "type": "ImageLang",
+    "value": "",
+    "php": true
+  },
+  "logoMobile2xAlternate": {
+    "type": "ImageLang",
+    "value": "",
+    "php": true
+  },
+  "logoSocialShare": {
+    "type": "ImageLang",
+    "value": "",
+    "php": true
+  }
+}

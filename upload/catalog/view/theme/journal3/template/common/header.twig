@@ -1,0 +1,202 @@
+{% if journal3 is not defined %}
+<style>body { display: none !important; }</style>
+<script>window.location = 'index.php?route=journal3/startup/error_not_installed';</script>
+{% endif %}
+<!DOCTYPE html>
+<html dir="{{ direction }}" lang="{{ lang }}" class="{{ journal3_classes | join(' ') }}" data-ov="{{ journal3_oc_version }}" data-jv="{{ journal3_version }}">
+<head typeof="og:website">
+<meta charset="UTF-8" />
+<meta name="theme-color" content="{{ journal3.get('theme_color') }}">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>{{ title }}</title>
+<base href="{{ base }}" />
+{% if description %}
+<meta name="description" content="{{ description }}" />
+{% endif %}
+{% if keywords %}
+<meta name="keywords" content="{{ keywords }}" />
+{% endif %}
+{% if not journal3.is_popup %}
+{% for meta in journal3_metas %}
+<meta {{ meta.attr }}="{{ meta.name }}" content="{{ meta.content }}"/>
+{% endfor %}
+{% for key, tag in journal3_meta_tags %}
+<meta {{ tag.type }}="{{ key }}" content="{{ tag.content }}"/>
+{% endfor %}
+{% endif %}
+{% for link in journal3_links %}
+<link href="{{ link.href }}" rel="{{ link.rel }}" {{ link.attrs }}/>
+{% endfor %}
+{% for link in links %}
+<link href="{{ link.href }}" rel="{{ link.rel }}" />
+{% endfor %}
+{% if journal3_sentry_dsn_loader %}
+{% if journal3.js_defer %}
+<script src="{{ journal3_sentry_dsn_loader }}" crossorigin="anonymous" defer></script>
+{% else %}
+<script src="{{ journal3_sentry_dsn_loader }}" crossorigin="anonymous"></script>
+{% endif %}
+{% endif %}
+<script>window['Journal'] = {{ journal3_js }};</script>
+{% for script in journal3_inline_scripts %}
+<script>{{ script.href ?: script }}</script>
+{% endfor %}
+{% for style in styles %}
+{% if style.href %}
+<link href="{{ style.href }}" type="text/css" rel="{{ style.rel }}" media="{{ style.media }}" />
+{% else %}
+<style>{{ style.content }}</style>
+{% endif %}
+{% endfor %}
+<script>performance.mark('css');</script>
+{% for css in journal3_css %}
+<style {% if css.id %}data-id="{{ css.id }}"{% endif %}>{{ css.css }}</style>
+{% endfor %}
+<script>performance.measure('css', 'css');</script>
+{% if journal3.get('customCSS') %}
+<style>{{ journal3.get('customCSS') }}</style>
+{% endif %}
+{% for script in scripts %}
+{% if journal3.js_defer %}
+<script src="{{ script.href ?: script }}" defer></script>
+{% else %}
+<script src="{{ script.href ?: script }}"></script>
+{% endif %}
+{% endfor %}
+{% for script in scripts_defer %}
+<script src="{{ script.href ?: script }}" defer></script>
+{% endfor %}
+{% if journal3.get('customCodeHeader') %}
+{{ journal3.get('customCodeHeader') }}
+{% endif %}
+{% for analytic in analytics %}
+{{ analytic }}
+{% endfor %}
+</head>
+<body>
+{% if journal3_is_oc4 %}
+<div id="alert" class="toast-container position-fixed top-0 end-0 p-3" style="position: fixed; right: 0; top: 0; padding: 1rem; z-index: 999999;"></div>
+{% endif %}
+
+{{ journal3_background_slider }}
+
+{% if journal3_home_h1 %}
+<h1 style="position: absolute; height: 1px; width: 1px; clip: rect(0,0,0,0);">{{ journal3_home_h1 }}</h1>
+{% endif %}
+
+{% if journal_admin_bar_links %}
+<div class="admin-bar">
+  <div class="j-logo"><svg width="100%" height="100%" viewBox="0 0 50 60" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve"><path d="M22.585,57.853c-4,0 -7.64,-0.687 -10.92,-2.06c-3.273,-1.38 -5.95,-3.37 -8.03,-5.97l7.479,-8.805c3.444,2.012 5.515,4.155 8.895,4.155c2.24,0 5.069,-0.557 6.236,-1.91c1.173,-1.353 2.12,-3.09 2.12,-5.69l0,-1.966l15.28,0l0,1.036c0,7.067 -1.78,12.37 -5.34,15.91c-3.56,3.533 -8.8,5.3 -15.72,5.3Zm21.06,-26.103l-15.28,0l0,-3.158l15.28,0l0,3.158Zm0,-7.015l-15.28,0l0,-3.117l15.28,0l0,3.117Zm0,-6.974l-15.28,0l0,-3.089l-19.263,0l-0.004,-12.509l34.547,0l0,15.598Z"/></svg><span>Editor</span></div>
+  <div class="admin-bar-buttons">
+    {% for link in journal_admin_bar_links %}
+      <button data-edit="{{ link.edit }}">{{ link.name }}</button>
+    {% endfor %}
+  </div>
+  <button class="admin-close-bar" type="button" title="Toggle Editor"><span>&times;</span></button>
+</div>
+{% endif %}
+
+{% if journal3.get('oldBrowserStatus') %}
+<div class="old-browser">
+  <div class="ob-content">
+    <h2 class="ob-title">{{ journal3.get('oldBrowserTitle') }}</h2>
+    <span class="ob-text">{{ journal3.get('oldBrowserText') }}</span>
+    <div class="ob-links">
+      <a href="https://www.google.com/chrome/" target="_blank" rel="nofollow">
+        <img src="{{ journal3.get('oldBrowserChrome') }}" alt="Chrome" />
+        <span class="ob-name">Chrome</span>
+      </a>
+      <a href="https://www.mozilla.org/firefox/new/" target="_blank" rel="nofollow">
+        <img src="{{ journal3.get('oldBrowserFirefox') }}" alt="Firefox" />
+        <span class="ob-name">Firefox</span>
+      </a>
+      <a href="https://www.microsoft.com/en-us/windows/microsoft-edge" target="_blank" rel="nofollow">
+        <img src="{{ journal3.get('oldBrowserEdge') }}" alt="edge" />
+        <span class="ob-name">Microsoft Edge</span>
+      </a>
+      <a href="https://www.opera.com/" target="_blank" rel="nofollow">
+        <img src="{{ journal3.get('oldBrowserOpera') }}" alt="opera" />
+        <span class="ob-name">Opera</span>
+      </a>
+      <a href="https://www.apple.com/lae/safari/" target="_blank" rel="nofollow">
+        <img src="{{ journal3.get('oldBrowserSafari') }}" alt="safari" />
+        <span class="ob-name">Safari on Mac</span>
+      </a>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if not journal3.is_popup %}
+<div class="mobile-container mobile-main-menu-container">
+  {{ journal3.get('mobile_bottom_menu') }}
+  <div class="mobile-wrapper-header">
+    <span>{{ journal3.get('headerMobileMenuTitle') }}</span>
+    <div class="mobile-wrapper-top-menu">{{ journal3.get('mobile_top_menu_2') }}</div>
+    {% if journal3.get('mobileLangPosition') == 'menu' %}
+      <div class="language-currency top-menu">
+        <div class="mobile-language-wrapper">
+            {{ journal3.get('mobile_header_active') ? language : '' }}
+        </div>
+        <div class="mobile-currency-wrapper">
+          {{ journal3.get('mobile_header_active') ? currency : '' }}
+        </div>
+      </div>
+    {% endif %}
+    <a class="x" href="javascript:;" title="Close"></a>
+  </div>
+  <template class="mobile-main-menu-wrapper">{{ journal3.get('mobile_main_menu') }}</template>
+  {{ journal3.get('headerMobileMenuAccordion') }}
+  {{ journal3.get('headerMobileMenuBuilder') }}
+</div>
+
+<div class="mobile-container desktop-mobile-main-menu-container">
+  <div class="mobile-wrapper-header">
+    <span>{{ journal3.get('headerMobileMenuTitle') }}</span>
+    <a class="x" href="javascript:;" title="Close"></a>
+  </div>
+  <div class="desktop-mobile-main-menu-wrapper">{% if journal3.get('mobileMenu1') %}{{ journal3.get('desktop_main_menu') }}{% endif %}{% if journal3.get('mobileMenu2') %}{{ journal3.get('desktop_main_menu_2') }}{% endif %}</div>
+  {{ journal3.get('headerDesktopMobileMenuAccordion') }}
+  {{ journal3.get('headerDesktopMobileMenuBuilder') }}
+</div>
+
+<div class="mobile-container mobile-filter-container">
+  <div class="mobile-wrapper-header">
+    <span>{{ journal3.get('mobileFilterTitle') }}</span>
+    <button aria-label="Reset" class="reset-filter btn">{{ journal3.get('mobileFilterReset') }}</button>
+    <a class="x" href="javascript:;" title="Close"></a>
+  </div>
+  <div class="mobile-filter-wrapper"></div>
+</div>
+
+<div class="mobile-container mobile-cart-content-container">
+  <div class="mobile-wrapper-header">
+    <span>{{ journal3.get('headerMobileCartTitle') }}</span>
+    <a class="x" href="javascript:;" title="Close"></a>
+  </div>
+  <div class="mobile-cart-content-wrapper cart-content"></div>
+</div>
+{% endif %}
+
+{{ journal3_popup }}
+
+{{ journal3_bottom_menu }}
+
+{{ journal3_side_menu }}
+
+{{ journal3_notification }}
+
+{{ journal3_header_notice }}
+
+{{ '<div class="global-wrapper">' }}
+
+{% if journal3_header_desktop or journal3_header_mobile %}
+  <header class="header-{{ journal3.get('headerType') }}">
+    {{ journal3_header_desktop }}
+    {{ journal3_header_mobile }}
+    <div class="site-overlay"></div>
+  </header>
+{% endif %}
+
+{{ '<div class="site-wrapper">' }}
